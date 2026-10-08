@@ -1,12 +1,22 @@
-:root{--primary:#168A5B;--primary-h:#117149;--on-primary:#fff;--green:#4DBD7A;--mint:#E8F6EF;--bg:#F8FAF9;--card:#fff;--navy:#193B5A;--text:#17221D;--muted:#68756E;--border:#E2EAE5;--track:#DDE8E1;--amber:#F4C95D;--error:#D9534F;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+:root{--primary:#168A5B;--primary-h:#117149;--on-primary:#fff;--green:#4DBD7A;--mint:#E8F6EF;--bg:#F8FAF9;--card:#fff;--navy:#193B5A;--text:#17221D;--muted:#68756E;--border:#E2EAE5;--track:#DDE8E1;--amber:#F4C95D;--error:#D9534F;
+    font-family: 'Orbitron', system-ui, sans-serif;
+}
 [data-theme=dark]{--bg:#0F1713;--card:#192820;--navy:#101C28;--primary:#4DBD7A;--primary-h:#70D99A;--on-primary:#0F1713;--mint:#193A2A;--text:#F1F7F3;--muted:#A9B8AF;--border:#2A3A31;--track:#2A3A31}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);line-height:1.5}
-a{color:var(--primary)}h1,h2,h3{color:var(--navy);margin:.3em 0}[data-theme=dark] h1,[data-theme=dark] h2,[data-theme=dark] h3{color:var(--text)}
+*{box-sizing:border-box}
+body{margin:0;
+    background:var(--bg);
+    color:var(--text);line-height:1.5}
+a{color:var(--primary)}
+h1,h2,h3{color:var(--navy);
+    margin:.3em 0}[data-theme=dark] h1,[data-theme=dark] h2,[data-theme=dark] h3{color:var(--text)}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo { height: 36px; width: 36px; object-fit: contain; background: #fff; border-radius: 8px; padding: 2px; }
 .muted{color:var(--muted);font-size:.92rem;margin:.2em 0}.center{text-align:center;margin-top:20vh}
 .shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
 .side{background:var(--navy);padding:20px 12px;display:flex;flex-direction:column;gap:4px}
 .side a{color:#dbe6ee;text-decoration:none;padding:10px 12px;border-radius:8px}.side a.active{background:#168A5B;color:#fff;font-weight:600}
-.brand{color:#fff;font-weight:800;font-size:1.2rem;margin:0 0 16px 8px}.brand span{color:var(--green)}.brand.dark{color:var(--navy)}
+.brand{color:#fff;font-weight:800;font-size:1.2rem;margin:0 0 16px 8px}.brand 
+span{color:var(--green)}.brand.dark{color:var(--navy)}
 .main{padding:24px;max-width:1000px;width:100%}
 @media(max-width:720px){.shell{grid-template-columns:1fr}.side{flex-direction:row;overflow-x:auto;padding:8px}.brand{display:none}.main{padding:16px}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0}

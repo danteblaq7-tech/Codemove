@@ -1,29 +1,120 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import './AuthLayout.css';
+import favicon from '../assets/favicon.jpeg';
 
 export default function Login() {
   const [mode, setMode] = useState('in');
   const [f, setF] = useState({ name: '', email: '', password: '' });
   const [msg, setMsg] = useState('');
+  const [msgOk, setMsgOk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+
   async function submit(e) {
-    e.preventDefault(); setMsg('');
+    e.preventDefault();
+    setMsg('');
+    setMsgOk(false);
+    setBusy(true);
     const { error } = mode === 'in'
       ? await supabase.auth.signInWithPassword({ email: f.email, password: f.password })
-      : await supabase.auth.signUp({ email: f.email, password: f.password, options: { data: { full_name: f.name } } });
-    if (error) setMsg(error.message); else if (mode === 'up') setMsg('Account created. Check your email if confirmation is on.');
+      : await supabase.auth.signUp({
+          email: f.email,
+          password: f.password,
+          options: { data: { full_name: f.name } },
+        });
+    setBusy(false);
+    if (error) setMsg(error.message);
+    else if (mode === 'up') {
+      setMsg('Account created. Check your email if confirmation is on.');
+      setMsgOk(true);
+    }
   }
+
+  const signingIn = mode === 'in';
+
   return (
-    <form className="login card" onSubmit={submit}>
-      <div className="brand dark">CodeMove <span>Kenya</span></div>
-      <h2>{mode === 'in' ? 'Welcome back' : 'Create your account'}</h2>
-      {mode === 'up' && <><label htmlFor="n">Full name</label><input id="n" required value={f.name} onChange={set('name')} /></>}
-      <label htmlFor="e">Email</label><input id="e" type="email" required value={f.email} onChange={set('email')} />
-      <label htmlFor="p">Password</label><input id="p" type="password" minLength={6} required value={f.password} onChange={set('password')} />
-      {msg && <p className="note error">{msg}</p>}
-      <button className="btn">{mode === 'in' ? 'Log in' : 'Sign up'}</button>
-      <p className="muted"><a href="#" onClick={(e) => { e.preventDefault(); setMode(mode === 'in' ? 'up' : 'in'); }}>
-        {mode === 'in' ? 'New here? Create an account' : 'Have an account? Log in'}</a></p>
-    </form>
+    <div className="auth-page">
+      <section className="auth-panel">
+        <div className="auth-brand">CODMove<span>Kenya</span></div>
+        <h1>{signingIn ? 'WELCOME BACK' : 'CREATE ACCOUNT'}</h1>
+        <p className="auth-lead">
+          {signingIn
+            ? 'Sign in to continue to your dashboard.'
+            : 'Join CodeMove Kenya and start learning today.'}
+        </p>
+
+        <form className="auth-form" onSubmit={submit}>
+          {!signingIn && (
+            <label className="auth-field">
+              <span>Full name</span>
+              <input value={f.name} onChange={set('name')} placeholder="Your full name" required />
+            </label>
+          )}
+
+          <label className="auth-field">
+            <span>Email</span>
+            <input
+              type="email"
+              value={f.email}
+              onChange={set('email')}
+              placeholder="you@example.com"
+              required
+            />
+          </label>
+
+          <label className="auth-field">
+            <span>Password</span>
+            <div className="auth-password">
+              <input
+                type={passwordVisible ? 'text' : 'password'}
+                value={f.password}
+                onChange={set('password')}
+                placeholder="At least 6 characters"
+                minLength={6}
+                required
+              />
+              <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}>
+                {passwordVisible ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </label>
+
+          {msg && (
+            <p className={msgOk ? 'auth-success' : 'auth-error'} role={msgOk ? 'status' : 'alert'}>
+              {msg}
+            </p>
+          )}
+
+          <button type="submit" className="auth-btn" disabled={busy}>
+            {busy ? 'PLEASE WAIT...' : signingIn ? 'LOGIN' : 'SIGN UP'}
+          </button>
+
+          <p className="auth-footer">
+            {signingIn ? "Don't have an account? " : 'Already have an account? '}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setMode(signingIn ? 'up' : 'in');
+                setMsg('');
+              }}
+            >
+              {signingIn ? 'SIGN UP' : 'LOG IN'}
+            </a>
+          </p>
+        </form>
+      </section>
+
+      <aside className="auth-visual">
+        <img src={favicon} alt="CodeMove Kenya logo" />
+        <div className="auth-overlay">
+          <h2>CODMove Kenya</h2>
+          <p>Learn to build the web, one lesson at a time.</p>
+        </div>
+      </aside>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { api } from '../api';
+import logo from '../assets/logo.png';
 
 export default function Layout() {
   const [me, setMe] = useState(null);
@@ -11,10 +12,15 @@ export default function Layout() {
   return (
     <div className="shell">
       <nav className="side" aria-label="Main">
-        <div className="brand">CodeMove <span>Kenya</span></div>
+        <div className="brand">
+             <img src={logo} alt="" className="brand-logo" />
+            COD<span>Move</span>
+         </div>
         {links.map(([to, label]) => <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>)}
       </nav>
+      
       <main className="main"><Outlet context={{ me, setMe }} /></main>
     </div>
+    
   );
 }
