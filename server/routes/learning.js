@@ -23,6 +23,7 @@ learning.post('/lessons/:id/complete', h(async (req, res) => {
   await sb.from('user_progress').upsert({ user_id: uid, lesson_id: req.params.id, status: 'completed', completed_at: now, updated_at: now },
     { onConflict: 'user_id,lesson_id' });
   const { data: l } = await sb.from('lessons').select('modules(course_id)').eq('id', req.params.id).single();
+  if (!l) return res.status(404).json({ error: 'Lesson not found' }); // NEW: was a 500 crash for unknown ids
   const courseId = l.modules.course_id;
   const { data: all } = await sb.from('lessons').select('id, modules!inner(course_id)').eq('modules.course_id', courseId);
   const { count } = await sb.from('user_progress').select('*', { count: 'exact', head: true })
@@ -36,7 +37,20 @@ learning.post('/lessons/:id/complete', h(async (req, res) => {
 learning.post('/lessons/:id/runs', h(async (req, res) => {
   const { code, output = '', hasError = false } = req.body;
   if (typeof code !== 'string' || code.length > 20000) return res.status(400).json({ error: 'Invalid code' });
-  await sb.from('code_runs').insert({ user_id: req.user.id, lesson_id: req.params.id, code_content: code, output, has_error: !!hasError });
+  // CHANGED: the editor now sends the console output of the run – cap it so nobody can fill the table.
+  await sb.from('code_runs').insert({ user_id: req.user.id, lesson_id: req.params.id, code_content: code,
+    output: String(output).slice(0, 4000), has_error: !!hasError });
+  res.json({ ok: true });
+}));
+
+// NEW: save the learner's work (Save button + autosave). One row per learner per lesson.
+learning.put('/lessons/:id/code', h(async (req, res) => {
+  const { code } = req.body;
+  if (typeof code !== 'string' || code.length > 20000) return res.status(400).json({ error: 'Invalid code' });
+  const { error } = await sb.from('user_code').upsert(
+    { user_id: req.user.id, lesson_id: req.params.id, code, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,lesson_id' });
+  if (error) throw error;
   res.json({ ok: true });
 }));
 

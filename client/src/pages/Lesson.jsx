@@ -9,12 +9,14 @@ export default function Lesson() {
   const nav = useNavigate();
   const [l, setL] = useState(null);
   const [err, setErr] = useState('');
-  useEffect(() => { setL(null); api(`/lessons/${id}`).then(setL).catch((e) => setErr(e.message)); }, [id]);
-  if (!l) return <p>{err || 'Loading…'}</p>;
+  useEffect(() => { setL(null); setErr(''); api(`/lessons/${id}`).then(setL).catch((e) => setErr(e.message)); }, [id]);
+  if (!l) return <p className={err ? 'note error' : ''}>{err || 'Loading…'}</p>;
   async function finish() {
-    const r = await api(`/lessons/${id}/complete`, { method: 'POST' });
-    if (r.badges.length) alert(`Badge earned: ${r.badges.join(', ')}`);
-    nav(l.next_id ? `/lessons/${l.next_id}` : `/courses/${l.course_slug}`);
+    try {   // CHANGED: errors are shown instead of silently doing nothing
+      const r = await api(`/lessons/${id}/complete`, { method: 'POST' });
+      if (r.badges.length) alert(`Badge earned: ${r.badges.join(', ')}`);
+      nav(l.next_id ? `/lessons/${l.next_id}` : `/courses/${l.course_slug}`);
+    } catch (e) { setErr(e.message); }
   }
   return (
     <div className="lesson">
@@ -22,7 +24,9 @@ export default function Lesson() {
       <h1>{l.title}</h1>
       <div className="panel" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(l.content || '') }} />
       {l.tip_text && <div className="tip">💡 <b>Remember</b><br />{l.tip_text}</div>}
-      <Editor key={id} lessonId={id} initial={l.code_example || ''} />
+      {/* CHANGED: Codesters-style workspace. `starter` = lesson's example code, `saved` = this learner's own saved work. */}
+      <Editor key={id} lessonId={id} starter={l.code_example || ''} saved={l.saved_code} />
+      {err && <p className="note error" role="alert">{err}</p>}
       <button className="btn" onClick={finish}>Continue →</button>
     </div>
   );

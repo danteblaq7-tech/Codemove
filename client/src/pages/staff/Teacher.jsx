@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useOutletContext } from 'react-router-dom';
 import { api, useApi } from '../../api';
 import Tabs from '../../components/Tabs';
 import Account from '../../components/Account';
+import { BulkImport, NewLesson } from '../../components/Authoring'; // NEW
 
 export default function Teacher() {
   const { me } = useOutletContext();
@@ -20,8 +21,9 @@ export default function Teacher() {
 }
 
 function Classes() {
-  const [list, , err] = useApi('/staff/classes');
-  const [sel, setSel] = useState(null);
+  const { me } = useOutletContext();                       // NEW: admins opening this page may also create cohorts
+  const [list, reload, err] = useApi('/staff/classes');    // CHANGED: keep `reload` so counts refresh after an import
+  const [sel, setSel] = useState(null), [tick, setTick] = useState(0);
   useEffect(() => { if (list?.length && !sel) setSel(list[0].id); }, [list, sel]);
   if (err) return <p className="note error">{err}</p>;
   if (!list) return <p>Loading…</p>;
@@ -30,7 +32,9 @@ function Classes() {
     <>
       <div className="chips">{list.map((c) => (
         <button key={c.id} className="tab" aria-selected={sel === c.id} onClick={() => setSel(c.id)}>{c.name} ({c.learners})</button>))}</div>
-      {sel && <Roster key={sel} id={sel} />}
+      {sel && <Roster key={`${sel}-${tick}`} id={sel} />}
+      {/* NEW: bulk-add students to the selected cohort (or use a cohort column – teachers: your own cohorts only) */}
+      <BulkImport classes={list} isAdmin={me?.role === 'admin'} defaultClassId={sel || ''} onDone={() => { reload(); setTick((t) => t + 1); }} />
     </>
   );
 }
@@ -69,16 +73,25 @@ function Roster({ id }) {
 }
 
 function Lessons() {
-  const [list, load, err] = useApi('/staff/lessons');
-  const [i, setI] = useState(0), [f, setF] = useState(null), [msg, setMsg] = useState('');
+  const [raw, load, err] = useApi('/staff/lessons');
+  // NEW: group by course → module → order, so lessons you add appear next to their siblings.
+  const list = useMemo(() => raw && [...raw].sort((a, b) =>
+    `${a.modules.courses.title}|${a.modules.title}`.localeCompare(`${b.modules.courses.title}|${b.modules.title}`) || (a.order_index ?? 0) - (b.order_index ?? 0)), [raw]);
+  const [i, setI] = useState(0), [f, setF] = useState(null), [msg, setMsg] = useState(''), [adding, setAdding] = useState(false);
   useEffect(() => { if (list?.[i]) setF({ ...list[i] }); }, [list, i]);
-  if (!list || !f) return <p>{err || 'Loading…'}</p>;
+  if (!list) return <p>{err || 'Loading…'}</p>;
+  if (!list.length) return <NewLesson onDone={load} />;      // NEW: nothing to edit yet → go straight to adding
+  if (!f) return <p>Loading…</p>;
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   async function save() {
     await api(`/staff/lessons/${f.id}`, { method: 'PATCH', body: { title: f.title, content: f.content, code_example: f.code_example, tip_text: f.tip_text } });
     setMsg('Lesson saved'); load();
   }
   return (
+    <>
+    {/* NEW: add a lesson to any course/module */}
+    <p><button className="btn ghost" onClick={() => setAdding(!adding)}>{adding ? 'Close' : '➕ New lesson'}</button></p>
+    {adding && <NewLesson onDone={load} />}
     <div className="split">
       <div className="card">{list.map((l, k) => (
         <button key={l.id} className="tab full" aria-selected={k === i} onClick={() => { setI(k); setMsg(''); }}>{l.modules.courses.title}: {l.title}</button>))}</div>
@@ -90,5 +103,6 @@ function Lessons() {
         <p><button className="btn" onClick={save}>Save lesson</button> {msg && <span className="note" role="status">{msg}</span>}</p>
       </div>
     </div>
+    </>
   );
 }

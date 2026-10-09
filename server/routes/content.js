@@ -3,6 +3,12 @@ import { sb } from '../supabase.js';
 import { h, byOrder } from '../middleware.js';
 export const content = Router();
 
+// NEW: staff may preview unpublished (draft) courses; learners may not.
+async function isStaff(uid) {
+  const { data } = await sb.from('users').select('role').eq('id', uid).single();
+  return ['teacher', 'admin'].includes(data?.role);
+}
+
 content.get('/courses', h(async (req, res) => {
   const { data: courses, error } = await sb.from('courses')
     .select('*, modules(lessons(id), quizzes(id))').eq('is_published', true).order('created_at');
@@ -24,6 +30,8 @@ content.get('/courses/:slug', h(async (req, res) => {
     .select('*, modules(*, lessons(id,title,order_index,estimated_minutes), quizzes(id,title,pass_score))')
     .eq('slug', req.params.slug).single();
   if (error) return res.status(404).json({ error: 'Course not found' });
+  // NEW: new courses start as hidden drafts – don't let learners open them by guessing the URL.
+  if (!course.is_published && !(await isStaff(req.user.id))) return res.status(404).json({ error: 'Course not found' });
   const ids = course.modules.flatMap((m) => m.lessons.map((l) => l.id));
   const { data: done } = await sb.from('user_progress').select('lesson_id,status').eq('user_id', req.user.id).in('lesson_id', ids);
   const st = Object.fromEntries((done || []).map((d) => [d.lesson_id, d.status]));
@@ -35,8 +43,11 @@ content.get('/courses/:slug', h(async (req, res) => {
 
 content.get('/lessons/:id', h(async (req, res) => {
   const { data: l, error } = await sb.from('lessons')
-    .select('*, modules(id, course_id, courses(slug))').eq('id', req.params.id).single();
+    // CHANGED: select now also loads courses.is_published (for the draft check below)
+    .select('*, modules(id, course_id, courses(slug,is_published))').eq('id', req.params.id).single();
   if (error) return res.status(404).json({ error: 'Lesson not found' });
+  // NEW: same draft protection for lessons.
+  if (!l.modules.courses.is_published && !(await isStaff(req.user.id))) return res.status(404).json({ error: 'Lesson not found' });
   const { data: sibs } = await sb.from('lessons').select('id,order_index').eq('module_id', l.module_id);
   const ordered = (sibs || []).sort(byOrder);
   const next = ordered[ordered.findIndex((x) => x.id === l.id) + 1];
@@ -45,5 +56,7 @@ content.get('/lessons/:id', h(async (req, res) => {
     { onConflict: 'user_id,lesson_id', ignoreDuplicates: true });
   await sb.from('user_course_progress').upsert({ user_id: req.user.id, course_id: l.modules.course_id,
     last_accessed_lesson_id: l.id, updated_at: now }, { onConflict: 'user_id,course_id' });
-  res.json({ ...l, course_slug: l.modules.courses.slug, next_id: next?.id ?? null, modules: undefined });
+  // NEW: the learner's own saved work for this lesson (null until they save/autosave once).
+  const { data: saved } = await sb.from('user_code').select('code').eq('user_id', req.user.id).eq('lesson_id', l.id).maybeSingle();
+  res.json({ ...l, course_slug: l.modules.courses.slug, next_id: next?.id ?? null, saved_code: saved?.code ?? null, modules: undefined });
 }));

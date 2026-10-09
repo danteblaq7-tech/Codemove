@@ -3,6 +3,7 @@ import { Navigate, useOutletContext } from 'react-router-dom';
 import { api, useApi } from '../../api';
 import Tabs from '../../components/Tabs';
 import Account from '../../components/Account';
+import { BulkImport, NewCourse, NewLesson } from '../../components/Authoring'; // NEW
 
 const ROLES = ['learner', 'teacher', 'admin'];
 
@@ -15,8 +16,11 @@ export default function Admin() {
     <>
       <h1>Admin console</h1>
       <p className="muted">Manage people, classes and course content.</p>
-      <Tabs tabs={[['users', 'Users'], ['classes', 'Classes'], ['courses', 'Courses'], ['account', 'My account']]} value={tab} onChange={setTab} />
-      {tab === 'users' && <Users />}{tab === 'classes' && <AdminClasses />}{tab === 'courses' && <AdminCourses />}{tab === 'account' && <Account />}
+      {/* CHANGED: new "Add lessons" tab */}
+      <Tabs tabs={[['users', 'Users'], ['classes', 'Classes'], ['courses', 'Courses'], ['lessons', 'Add lessons'], ['account', 'My account']]} value={tab} onChange={setTab} />
+      {tab === 'users' && <Users />}{tab === 'classes' && <AdminClasses />}{tab === 'courses' && <AdminCourses />}
+      {tab === 'lessons' && <><NewLesson /><p className="muted">To change an existing lesson, use the Teacher portal → Edit lessons.</p></>}
+      {tab === 'account' && <Account />}
     </>
   );
 }
@@ -79,6 +83,8 @@ function AdminClasses() {
         <label className="f">Teacher<select value={tid} onChange={(e) => setTid(e.target.value)}>{opts}</select></label>
         <button className="btn">Create class</button>
       </form>
+      {/* NEW: bulk-add students into any cohort (admins may also auto-create cohorts from a "cohort" column) */}
+      <BulkImport classes={cl} isAdmin onDone={load} />
     </>
   );
 }
@@ -88,12 +94,16 @@ function AdminCourses() {
   if (!c) return <p>{err || 'Loading…'}</p>;
   const toggle = (x) => api(`/admin/courses/${x.id}`, { method: 'PATCH', body: { is_published: !x.is_published } }).then(load);
   return (
-    <div className="card scroll"><table>
-      <thead><tr><th>Course</th><th>Lessons</th><th>Status</th><th></th></tr></thead>
-      <tbody>{c.map((x) => (
-        <tr key={x.id}><td>{x.title}</td><td>{x.lessons}</td>
-          <td><span className={`tag ${x.is_published ? '' : 'off'}`}>{x.is_published ? 'Published' : 'Hidden'}</span></td>
-          <td><button className="btn ghost sm" onClick={() => toggle(x)}>{x.is_published ? 'Hide' : 'Publish'}</button></td></tr>))}</tbody>
-    </table></div>
+    <>
+      <div className="card scroll"><table>
+        <thead><tr><th>Course</th><th>Lessons</th><th>Status</th><th></th></tr></thead>
+        <tbody>{c.map((x) => (
+          <tr key={x.id}><td>{x.title}</td><td>{x.lessons}</td>
+            <td><span className={`tag ${x.is_published ? '' : 'off'}`}>{x.is_published ? 'Published' : 'Hidden'}</span></td>
+            <td><button className="btn ghost sm" onClick={() => toggle(x)}>{x.is_published ? 'Hide' : 'Publish'}</button></td></tr>))}</tbody>
+      </table></div>
+      {/* NEW: create a course (hidden draft by default). Add its lessons in the "Add lessons" tab, then Publish here. */}
+      <NewCourse onDone={load} />
+    </>
   );
 }

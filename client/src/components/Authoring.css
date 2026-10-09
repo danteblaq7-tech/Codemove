@@ -1,0 +1,8 @@
+/* NEW FILE – client/src/components/Authoring.css (imported by Authoring.jsx) */
+.imp textarea{width:100%;min-height:150px;font-family:ui-monospace,Consolas,monospace;font-size:.85rem;white-space:pre}
+.imp-sum{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.imp-sum .tag{font-size:.85rem;padding:4px 10px}
+.imp-scroll{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+.tag.warn{background:#FFF8DF;color:#6E5200}
+.linkbtn{font:inherit;color:var(--primary);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+label.f input[type=file]{padding:6px}
