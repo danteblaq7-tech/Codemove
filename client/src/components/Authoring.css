@@ -6,3 +6,7 @@
 .tag.warn{background:#FFF8DF;color:#6E5200}
 .linkbtn{font:inherit;color:var(--primary);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 label.f input[type=file]{padding:6px}
+
+.notes-help{margin:8px 0;font-size:.88rem}.notes-help summary{cursor:pointer;font-weight:600;color:var(--primary)}
+.notes-help ul{margin:6px 0;padding-left:1.2em}.notes-help li{margin:3px 0}
+textarea.notes{width:100%;font-family:inherit;font-size:.95rem;line-height:1.6;white-space:pre-wrap;min-height:220px}

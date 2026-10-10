@@ -3,7 +3,7 @@ import { Navigate, useOutletContext } from 'react-router-dom';
 import { api, useApi } from '../../api';
 import Tabs from '../../components/Tabs';
 import Account from '../../components/Account';
-import { BulkImport, NewLesson } from '../../components/Authoring'; // NEW
+import { BulkImport, NewLesson, NotesHelp } from '../../components/Authoring'; // NEW
 import Rankings from '../../components/Rankings';       // NEW: graded ranking of your learners
 import { QuizManager } from '../../components/QuizBuilder'; // NEW: add / edit quizzes
 
@@ -101,7 +101,9 @@ function Lessons() {
         <button key={l.id} className="tab full" aria-selected={k === i} onClick={() => { setI(k); setMsg(''); }}>{l.modules.courses.title}: {l.title}</button>))}</div>
       <div className="card">
         <label className="f">Title<input value={f.title} onChange={set('title')} /></label>
-        <label className="f">Lesson content (HTML)<textarea className="code" value={f.content || ''} onChange={set('content')} /></label>
+        <label className="f">Lesson notes (just type normally – no HTML)
+          <textarea className="code notes" rows={18} value={f.content || ''} onChange={set('content')} /></label>
+        <NotesHelp />
         <label className="f">Starter code<textarea className="code" value={f.code_example || ''} onChange={set('code_example')} /></label>
         <label className="f">Tip<input value={f.tip_text || ''} onChange={set('tip_text')} /></label>
         <p><button className="btn" onClick={save}>Save lesson</button> {msg && <span className="note" role="status">{msg}</span>}</p>

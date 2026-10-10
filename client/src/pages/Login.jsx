@@ -112,7 +112,7 @@ export default function Login() {
         <img src={favicon} alt="CodeMove Kenya logo" />
         <div className="auth-overlay">
           <h2>CODMove Kenya</h2>
-          <p>Learn to build the web, one lesson at a time.</p>
+          <p>A brighter tomorrow through tech skills.</p>
         </div>
       </aside>
     </div>

@@ -42,6 +42,25 @@ export function NewCourse({ onDone }) {
   );
 }
 
+/* NEW: short cheat-sheet shown under the lesson notes box (replaces the old "HTML" instructions). */
+export function NotesHelp() {
+  return (
+    <details className="notes-help">
+      <summary>How to format notes (and add pictures / videos)</summary>
+      <ul>
+        <li>Press <b>Enter twice</b> for a new paragraph; once for a new line. Spacing is kept exactly as you type it.</li>
+        <li><code>## Heading</code> makes a heading. Start lines with <code>- </code> for bullets or <code>1. </code> for numbers.</li>
+        <li><code>**bold**</code>, <code>*italic*</code> and <code>`code`</code> work inside a sentence.</li>
+        <li><b>Picture:</b> <code>[image: https://example.com/photo.jpg | Caption]</code></li>
+        <li><b>Video:</b> <code>[video: https://www.youtube.com/watch?v=… | Watch the demo]</code></li>
+        <li><b>Other link:</b> <code>[link: https://… | Link text]</code></li>
+        <li>Leave the link empty, <code>[image: | Caption]</code>, to show a grey “picture coming soon” note until you have one.</li>
+        <li>Table: one row per line, <code>| Name | Value |</code>; the first row is the header.</li>
+      </ul>
+    </details>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /*  NEW LESSON                                                         */
 /* ------------------------------------------------------------------ */
@@ -93,8 +112,9 @@ export function NewLesson({ onDone }) {
         <label className="f">Lesson title<input required maxLength={160} value={f.title} onChange={set('title')} /></label>
         <label className="f">Estimated minutes<input type="number" min={1} max={240} value={f.estimated_minutes} onChange={set('estimated_minutes')} /></label>
       </div>
-      <label className="f">Lesson content (HTML – use &lt;p&gt;, &lt;code&gt;, &lt;ul&gt;… Scripts are removed for safety)
-        <textarea className="code" value={f.content} onChange={set('content')} placeholder="<p>Explain the idea here…</p>" /></label>
+      <label className="f">Lesson notes (just type normally – no HTML)
+        <textarea className="code notes" rows={14} value={f.content} onChange={set('content')} placeholder={'Explain the idea here. Press Enter twice to start a new paragraph.'} /></label>
+      <NotesHelp />
       <label className="f">Starter code (what the learner sees in the editor)
         <textarea className="code" value={f.code_example} onChange={set('code_example')} placeholder={'<h1>Hello World</h1>\n<p>Welcome!</p>'} /></label>
       <label className="f">"Remember" tip (optional)<input maxLength={500} value={f.tip_text} onChange={set('tip_text')} /></label>

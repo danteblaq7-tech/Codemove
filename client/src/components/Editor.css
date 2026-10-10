@@ -5,7 +5,7 @@
    ===================================================================== */
 
 /* The lesson page gets more room than other pages (needs 4 columns). */
-.main:has(.lesson){max-width:1400px}
+.main:has(.lesson){max-width:none}   /* CHANGED: use the whole right-hand area */
 
 .ide{--ide-blue:#1b9bd8;display:grid;grid-template-columns:210px minmax(0,1fr) 58px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;
   height:clamp(460px,72vh,640px);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:14px 0;background:var(--card)}
