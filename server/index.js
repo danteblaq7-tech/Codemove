@@ -21,4 +21,5 @@ app.use((err, _req, res, _next) => {
   const big = err.type === 'entity.too.large';
   res.status(big ? 413 : err.status || 500).json({ error: big ? 'That request is too large' : err.message });
 });
-app.listen(process.env.PORT || 4000, () => console.log('CodeMove API ready'));
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, '0.0.0.0', () => console.log(`CodeMove API ready on port ${PORT}`));
