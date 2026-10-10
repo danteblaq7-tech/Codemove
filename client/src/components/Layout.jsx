@@ -6,7 +6,7 @@ import logo from '../assets/logo.png';
 export default function Layout() {
   const [me, setMe] = useState(null);
   useEffect(() => { api('/me').then((p) => { setMe(p); document.documentElement.dataset.theme = p.theme_preference || 'light'; }).catch(() => {}); }, []);
-  const links = [['/', '🏠 Home'], ['/courses', '📚 Courses'], ['/badges', '🏆 Badges'], ['/profile', '⚙ Profile']];
+  const links = [['/', '🏠 Home'], ['/courses', '📚 Courses'], ['/badges', '🏆 Badges'], ['/leaderboard', '🏅 Leaderboard'], /* NEW */ ['/profile', '⚙ Profile']];
   if (me && ['teacher', 'admin'].includes(me.role)) links.push(['/staff', '🧑‍🏫 Teacher']);
   if (me?.role === 'admin') links.push(['/admin', '🛠 Admin']);
   return (

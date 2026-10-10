@@ -1,0 +1,43 @@
+/* =====================================================================
+   NEW FILE – client/src/components/Assessment.css
+   Styles for Rankings, Leaderboard and the quiz builder.
+   Grade colours are paired with a visible letter, so meaning never depends on colour alone.
+   ===================================================================== */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.block{display:block}
+
+/* grade chips (A–E). To add bands such as EE/ME/AE/BE in scores.js, add .grade-EE etc. here. */
+.gr{display:inline-block;min-width:1.9em;text-align:center;font-weight:800;padding:1px 8px;border-radius:8px;background:#E8F6EF;color:#17221D}
+.grade-A{background:#D7F3E3;color:#0B5A38}.grade-B{background:#DCEBFA;color:#174C7E}.grade-C{background:#FFF3CC;color:#6E5200}
+.grade-D{background:#FFE3CC;color:#8A3F00}.grade-E{background:#FBDADA;color:#A83C39}
+.grade-EE{background:#D7F3E3;color:#0B5A38}.grade-ME{background:#DCEBFA;color:#174C7E}.grade-AE{background:#FFF3CC;color:#6E5200}.grade-BE{background:#FBDADA;color:#A83C39}
+
+/* staff summary tiles */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:12px 0}
+.stat{margin:0;text-align:center;padding:10px}
+.stat b{display:block;font-size:1.4rem;color:var(--text)}.stat span{color:var(--muted);font-size:.8rem}
+.gradebtn{font:inherit;color:var(--text);cursor:pointer}
+.gradebtn:hover{background:var(--mint)}.gradebtn.on{border:2px solid var(--primary);background:var(--mint)}
+
+/* ranking tables (staff + learner) */
+.rank-table td.rk{font-weight:800;font-size:1.05rem;width:3.5em}
+.rank-table tr.me td{background:var(--mint);font-weight:600}
+.rank-table tr.gap td{text-align:center;color:var(--muted);letter-spacing:.3em}
+small.muted.block{font-size:.78rem}
+
+/* learner "your standing" card */
+.standing{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.standing-main{flex:1;min-width:240px}
+.standing h2 small{font-size:.9rem;color:var(--muted);font-weight:500}
+.bigGrade{flex:none;width:92px;height:92px;display:grid;place-items:center;font-size:3.2rem;font-weight:900;border-radius:18px}
+.split-bars{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:600px){.split-bars{grid-template-columns:1fr}}
+.check{display:flex;align-items:center;gap:10px;font-weight:600}.check input{width:20px;height:20px}
+
+/* quiz builder */
+.qcard{position:relative}
+.qcard legend{font-weight:800;color:var(--navy);padding:0 6px}[data-theme=dark] .qcard legend{color:var(--text)}
+.qtools{position:absolute;top:10px;right:12px;display:flex;gap:6px}
+.optrow{display:flex;gap:8px;align-items:center;margin:6px 0}
+.optrow input[type=text]{flex:1;min-width:0}
+.optrow input[type=radio],.optrow input[type=checkbox]{flex:none;width:20px;height:20px;accent-color:var(--primary)}
+.sticky-save{position:sticky;bottom:0;background:var(--bg);padding:12px 0;border-top:1px solid var(--border);z-index:2}

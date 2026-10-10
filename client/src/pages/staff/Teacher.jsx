@@ -4,6 +4,8 @@ import { api, useApi } from '../../api';
 import Tabs from '../../components/Tabs';
 import Account from '../../components/Account';
 import { BulkImport, NewLesson } from '../../components/Authoring'; // NEW
+import Rankings from '../../components/Rankings';       // NEW: graded ranking of your learners
+import { QuizManager } from '../../components/QuizBuilder'; // NEW: add / edit quizzes
 
 export default function Teacher() {
   const { me } = useOutletContext();
@@ -14,8 +16,10 @@ export default function Teacher() {
     <>
       <h1>Teacher portal</h1>
       <p className="muted">Signed in as {me.full_name} ({me.email})</p>
-      <Tabs tabs={[['classes', 'My classes'], ['lessons', 'Edit lessons'], ['account', 'My account']]} value={tab} onChange={setTab} />
-      {tab === 'classes' && <Classes />}{tab === 'lessons' && <Lessons />}{tab === 'account' && <Account />}
+      {/* CHANGED: new "Rankings" and "Quizzes" tabs */}
+      <Tabs tabs={[['classes', 'My classes'], ['rankings', 'Rankings'], ['lessons', 'Edit lessons'], ['quizzes', 'Quizzes'], ['account', 'My account']]} value={tab} onChange={setTab} />
+      {tab === 'classes' && <Classes />}{tab === 'rankings' && <Rankings isAdmin={me.role === 'admin'} />}{tab === 'lessons' && <Lessons />}
+      {tab === 'quizzes' && <QuizManager isAdmin={me.role === 'admin'} />}{tab === 'account' && <Account />}
     </>
   );
 }

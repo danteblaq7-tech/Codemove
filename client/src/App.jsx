@@ -9,6 +9,7 @@ import Course from './pages/Course';
 import Lesson from './pages/Lesson';
 import Quiz from './pages/Quiz';
 import Badges from './pages/Badges';
+import Leaderboard from './pages/Leaderboard'; // NEW
 import Profile from './pages/Profile';
 import Teacher from './pages/staff/Teacher';
 import Admin from './pages/staff/Admin';
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="lessons/:id" element={<Lesson />} />
           <Route path="quizzes/:id" element={<Quiz />} />
           <Route path="badges" element={<Badges />} />
+          <Route path="leaderboard" element={<Leaderboard />} />{/* NEW */}
           <Route path="profile" element={<Profile />} />
           <Route path="staff" element={<Teacher />} />
           <Route path="admin" element={<Admin />} />

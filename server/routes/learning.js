@@ -1,7 +1,14 @@
 import { Router } from 'express';
 import { sb } from '../supabase.js';
 import { h, byOrder } from '../middleware.js';
+import { invalidateScores } from '../lib/scores.js'; // NEW: keep the leaderboard fresh
 export const learning = Router();
+
+// NEW: staff may open quizzes of unpublished (draft) courses to test them; learners may not.
+async function isStaff(uid) {
+  const { data } = await sb.from('users').select('role').eq('id', uid).single();
+  return ['teacher', 'admin'].includes(data?.role);
+}
 
 // Awards any badge whose criteria the learner now meets.
 async function awardBadges(uid) {
@@ -31,7 +38,9 @@ learning.post('/lessons/:id/complete', h(async (req, res) => {
   const pct = Math.round((count / all.length) * 100);
   await sb.from('user_course_progress').upsert({ user_id: uid, course_id: courseId, progress_percentage: pct,
     is_completed: pct === 100, completed_at: pct === 100 ? now : null, updated_at: now }, { onConflict: 'user_id,course_id' });
-  res.json({ progress: pct, badges: await awardBadges(uid) });
+  const badges = await awardBadges(uid);
+  invalidateScores(); // NEW: lesson completion changes the learner's overall score
+  res.json({ progress: pct, badges });
 }));
 
 learning.post('/lessons/:id/runs', h(async (req, res) => {
@@ -57,9 +66,13 @@ learning.put('/lessons/:id/code', h(async (req, res) => {
 // Quiz is returned WITHOUT is_correct.
 learning.get('/quizzes/:id', h(async (req, res) => {
   const { data, error } = await sb.from('quizzes')
-    .select('id,title,description,pass_score,quiz_questions(id,question_text,question_type,order_index,quiz_options(id,option_text,order_index))')
-    .eq('id', req.params.id).single();
+    .select('id,title,description,pass_score,modules(courses(is_published)),quiz_questions(id,question_text,question_type,order_index,quiz_options(id,option_text,order_index))')
+    .eq('id', req.params.id).single();   // CHANGED: + modules(courses(is_published)) for the draft check
   if (error) return res.status(404).json({ error: 'Quiz not found' });
+  // NEW: draft protection, and never serve a quiz with no questions (the player would crash).
+  if (!data.modules?.courses?.is_published && !(await isStaff(req.user.id))) return res.status(404).json({ error: 'Quiz not found' });
+  if (!data.quiz_questions.length) return res.status(404).json({ error: 'This quiz has no questions yet' });
+  delete data.modules;
   data.quiz_questions.sort(byOrder).forEach((q) => q.quiz_options.sort(byOrder));
   res.json(data);
 }));
@@ -80,9 +93,14 @@ learning.post('/quizzes/:id/submit', h(async (req, res) => {
   }
   const total = quiz.quiz_questions.length;
   const score = total ? Math.round((right / total) * 100) : 0, passed = score >= quiz.pass_score;
-  const { data: att } = await sb.from('quiz_attempts')
+  const { data: att, error: ae } = await sb.from('quiz_attempts')
     .insert({ user_id: req.user.id, quiz_id: req.params.id, score, passed, completed_at: new Date().toISOString() }).select().single();
+  if (ae) throw ae; // NEW: was a crash on att.id if the insert failed
   const ans = rows.flatMap((r) => r.picked.map((id) => ({ attempt_id: att.id, question_id: r.question_id, selected_option_id: id, is_correct: r.ok })));
   if (ans.length) await sb.from('quiz_attempt_answers').insert(ans);
-  res.json({ score, passed, passScore: quiz.pass_score, correct: right, total });
+  invalidateScores(); // NEW: a new quiz score changes the learner's overall score and rank
+  // NEW: best score so far on this quiz (retakes are allowed; the BEST one counts towards the grade)
+  const { data: top } = await sb.from('quiz_attempts').select('score').eq('user_id', req.user.id).eq('quiz_id', req.params.id)
+    .order('score', { ascending: false }).limit(1);
+  res.json({ score, passed, passScore: quiz.pass_score, correct: right, total, best: top?.[0]?.score ?? score });
 }));
