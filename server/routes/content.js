@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { sb } from '../supabase.js';
 import { h, byOrder } from '../middleware.js';
+import { renderLesson } from '../lib/lessonText.js';   // NEW: plain-text notes -> HTML (presentation lives here)
 export const content = Router();
 
 // NEW: staff may preview unpublished (draft) courses; learners may not.
@@ -63,5 +64,5 @@ content.get('/lessons/:id', h(async (req, res) => {
     last_accessed_lesson_id: l.id, updated_at: now }, { onConflict: 'user_id,course_id' });
   // NEW: the learner's own saved work for this lesson (null until they save/autosave once).
   const { data: saved } = await sb.from('user_code').select('code').eq('user_id', req.user.id).eq('lesson_id', l.id).maybeSingle();
-  res.json({ ...l, course_slug: l.modules.courses.slug, next_id: next?.id ?? null, saved_code: saved?.code ?? null, modules: undefined });
+  res.json({ ...l, content: renderLesson(l.content), course_slug: l.modules.courses.slug, next_id: next?.id ?? null, saved_code: saved?.code ?? null, modules: undefined });
 }));

@@ -45,3 +45,16 @@ Apply AFTER update 1 (it builds on content.js / learning.js / index.js / Admin.j
 | client/src/pages/staff/Teacher.jsx | REPLACE |
 
 No new npm packages. Restart the API after copying. Changed spots are marked NEW / CHANGED in comments.
+
+# Update 3 – plain-text notes, picture/video links, wider layout
+Copy these over your project (same paths). No SQL, no new npm packages. Restart the API.
+
+| File | Action |
+|---|---|
+| server/lib/lessonText.js | NEW – turns typed notes into HTML (the "backend presentation") |
+| server/routes/content.js | REPLACE – learners get the rendered notes |
+| server/routes/staff.js | REPLACE – editor gets plain text (old HTML lessons convert automatically) |
+| client/src/components/Authoring.jsx + Authoring.css | REPLACE – plain-text box + format help |
+| client/src/pages/staff/Teacher.jsx | REPLACE – "Edit lessons" uses plain text |
+| client/src/pages/Lesson.jsx | REPLACE – links open in a new tab |
+| client/src/styles.css, client/src/components/Editor.css | REPLACE – full-width layout, wrappin
