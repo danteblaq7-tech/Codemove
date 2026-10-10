@@ -35,8 +35,13 @@ content.get('/courses/:slug', h(async (req, res) => {
   const ids = course.modules.flatMap((m) => m.lessons.map((l) => l.id));
   const { data: done } = await sb.from('user_progress').select('lesson_id,status').eq('user_id', req.user.id).in('lesson_id', ids);
   const st = Object.fromEntries((done || []).map((d) => [d.lesson_id, d.status]));
+  // NEW: the learner's best score on each quiz, shown next to the quiz on the course page.
+  const qids = course.modules.flatMap((m) => m.quizzes.map((q) => q.id));
+  const { data: att } = qids.length ? await sb.from('quiz_attempts').select('quiz_id,score').eq('user_id', req.user.id).in('quiz_id', qids) : { data: [] };
+  const best = {}; (att || []).forEach((a) => { if (a.score != null && a.score > (best[a.quiz_id] ?? -1)) best[a.quiz_id] = a.score; });
   course.modules.sort(byOrder).forEach((m) => {
     m.lessons.sort(byOrder).forEach((l) => (l.status = st[l.id] || 'not_started'));
+    m.quizzes.forEach((q) => (q.best_score = best[q.id] ?? null)); // NEW
   });
   res.json(course);
 }));

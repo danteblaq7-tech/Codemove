@@ -4,6 +4,8 @@ import { api, useApi } from '../../api';
 import Tabs from '../../components/Tabs';
 import Account from '../../components/Account';
 import { BulkImport, NewCourse, NewLesson } from '../../components/Authoring'; // NEW
+import Rankings from '../../components/Rankings';       // NEW: graded ranking of learners
+import { QuizManager } from '../../components/QuizBuilder'; // NEW: add / edit quizzes
 
 const ROLES = ['learner', 'teacher', 'admin'];
 
@@ -16,10 +18,11 @@ export default function Admin() {
     <>
       <h1>Admin console</h1>
       <p className="muted">Manage people, classes and course content.</p>
-      {/* CHANGED: new "Add lessons" tab */}
-      <Tabs tabs={[['users', 'Users'], ['classes', 'Classes'], ['courses', 'Courses'], ['lessons', 'Add lessons'], ['account', 'My account']]} value={tab} onChange={setTab} />
+      {/* CHANGED: new "Rankings" and "Quizzes" tabs */}
+      <Tabs tabs={[['users', 'Users'], ['classes', 'Classes'], ['rankings', 'Rankings'], ['courses', 'Courses'], ['lessons', 'Add lessons'], ['quizzes', 'Quizzes'], ['account', 'My account']]} value={tab} onChange={setTab} />
       {tab === 'users' && <Users />}{tab === 'classes' && <AdminClasses />}{tab === 'courses' && <AdminCourses />}
       {tab === 'lessons' && <><NewLesson /><p className="muted">To change an existing lesson, use the Teacher portal → Edit lessons.</p></>}
+      {tab === 'rankings' && <Rankings isAdmin />}{tab === 'quizzes' && <QuizManager isAdmin />}
       {tab === 'account' && <Account />}
     </>
   );

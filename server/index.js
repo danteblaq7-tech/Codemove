@@ -6,13 +6,15 @@ import { content } from './routes/content.js';
 import { learning } from './routes/learning.js';
 import { me } from './routes/me.js';
 import { authoring } from './routes/authoring.js'; // NEW: add courses/lessons + bulk student import
+import { quizzes } from './routes/quizzes.js';     // NEW: quiz authoring (teacher/admin)
+import { rankings } from './routes/rankings.js';   // NEW: graded rankings + student leaderboard
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
 // CHANGED: 100kb -> 1mb so a 1,000-row student list and long lesson HTML fit.
 app.use(express.json({ limit: '1mb' }));
 app.get('/health', (_q, r) => r.json({ ok: true }));
-app.use('/api', requireAuth, content, learning, me, staff, authoring); // CHANGED: + authoring
+app.use('/api', requireAuth, content, learning, me, staff, authoring, quizzes, rankings); // CHANGED: + quizzes, rankings
 
 // NEW: always answer with JSON (the client calls r.json()), e.g. for oversized or malformed bodies.
 app.use((err, _req, res, _next) => {

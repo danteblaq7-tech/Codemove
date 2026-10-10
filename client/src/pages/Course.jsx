@@ -19,7 +19,11 @@ export default function Course() {
               <li key={l.id}><span className={`dot ${l.status}`}>{l.status === 'completed' ? '✓' : ''}</span>
                 <Link to={`/lessons/${l.id}`}>{l.title}</Link><span className="muted"> · {l.estimated_minutes} min</span></li>
             ))}
-            {m.quizzes.map((q) => <li key={q.id}><span className="dot">?</span><Link to={`/quizzes/${q.id}`}>Quiz: {q.title}</Link></li>)}
+            {/* CHANGED: shows the learner's best score; ✓ once they have reached the pass mark */}
+            {m.quizzes.map((q) => (
+              <li key={q.id}><span className={`dot ${q.best_score >= q.pass_score ? 'completed' : ''}`}>{q.best_score >= q.pass_score ? '✓' : '?'}</span>
+                <Link to={`/quizzes/${q.id}`}>Quiz: {q.title}</Link>
+                <span className="muted"> · {q.best_score == null ? `pass mark ${q.pass_score}%` : `best ${q.best_score}% (pass mark ${q.pass_score}%)`}</span></li>))}
           </ul>
         </div>
       ))}
