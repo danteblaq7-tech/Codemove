@@ -1,2 +1,17 @@
-{"name":"codemove-server","version":"1.0.0","type":"module","scripts":{"start":"node --env-file=.env index.js","dev":"node --watch --env-file=.env index.js"},
-"dependencies":{"@supabase/supabase-js":"^2.45.0","cors":"^2.8.5","express":"^4.19.2"}}
+{
+  "name": "codemove-server",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch --env-file=.env index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

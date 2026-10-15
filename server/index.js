@@ -12,13 +12,14 @@ import { quizzes } from './routes/quizzes.js';     // NEW: quiz authoring (teach
 import { rankings } from './routes/rankings.js';   // NEW: graded rankings + student leaderboard
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
-   const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
-   app.use(express.static(publicDir));
-   app.use((req, res, next) => {
-     if (req.method !== 'GET' || req.path.startsWith('/api') || req.path === '/health') return next();
-     res.sendFile(path.join(publicDir, 'index.html'));
-   });
+const clientOrigin = (process.env.CLIENT_ORIGIN || 'http://localhost:5173').trim().replace(/\/+$/, '');
+app.use(cors({ origin: clientOrigin }));
+const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
+app.use(express.static(publicDir));
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api') || req.path === '/health') return next();
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
 // CHANGED: 100kb -> 1mb so a 1,000-row student list and long lesson HTML fit.
 app.use(express.json({ limit: '1mb' }));
 app.get('/health', (_q, r) => r.json({ ok: true }));
