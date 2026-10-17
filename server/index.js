@@ -12,7 +12,7 @@ import { quizzes } from './routes/quizzes.js';     // NEW: quiz authoring (teach
 import { rankings } from './routes/rankings.js';   // NEW: graded rankings + student leaderboard
 
 const app = express();
-const clientOrigin = (process.env.CLIENT_ORIGIN || 'http://localhost:5173').trim().replace(/\/+$/, '');
+const clientOrigin = (process.env.CLIENT_ORIGIN || 'https://codemove.kirigimary2.workers.dev').trim().replace(/\/+$/, '');
 app.use(cors({ origin: clientOrigin }));
 const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 app.use(express.static(publicDir));
