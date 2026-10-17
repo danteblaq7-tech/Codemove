@@ -6,6 +6,7 @@
 // The server re-validates everything; the messages it returns ("Question 3: …") are shown as-is.
 // =====================================================================
 import { useEffect, useRef, useState } from 'react';
+import { AlertTriangle, ArrowDown, ArrowLeft, ArrowUp, ClipboardPaste, Plus, X } from 'lucide-react';
 import { api, useApi } from '../api';
 import './Assessment.css';
 
@@ -49,7 +50,7 @@ export function QuizManager({ isAdmin = false }) {
 
   return (
     <>
-      <p><button className="btn" onClick={() => { setNotice(''); setEditing('new'); }}>➕ New quiz</button></p>
+      <p><button className="btn" onClick={() => { setNotice(''); setEditing('new'); }}><Plus aria-hidden="true" />New quiz</button></p>
       {notice && <p className="note" role="status">{notice}</p>}{delErr && <p className="note error" role="alert">{delErr}</p>}
       {!list ? <p className={err ? 'note error' : ''}>{err || 'Loading…'}</p> : !list.length ? <div className="card">No quizzes yet. Create the first one!</div> : (
         <div className="card scroll"><table>
@@ -116,10 +117,10 @@ function QuizEditor({ id, onClose }) {
   return (
     <form onSubmit={save} className="quiz-editor">
       <div ref={top} />
-      <p><button type="button" className="btn ghost sm" onClick={() => onClose()}>← Back to quizzes</button></p>
+      <p><button type="button" className="btn ghost sm" onClick={() => onClose()}><ArrowLeft aria-hidden="true" />Back to quizzes</button></p>
       <h2>{id ? 'Edit quiz' : 'New quiz'}</h2>
       {err && <p className="note error" role="alert">{err}</p>}
-      {attempts > 0 && <p className="note">⚠ Learners have made {attempts} attempt{attempts === 1 ? '' : 's'} on this quiz. Their scores (and grades) are kept, but the per-question details of those attempts are cleared when you save. Changing which answers are correct will not re-grade old attempts.</p>}
+      {attempts > 0 && <p className="note"><AlertTriangle className="inline-icon" aria-hidden="true" /> Learners have made {attempts} attempt{attempts === 1 ? '' : 's'} on this quiz. Their scores (and grades) are kept, but the per-question details of those attempts are cleared when you save. Changing which answers are correct will not re-grade old attempts.</p>}
 
       <div className="card">
         <div className="two">
@@ -143,9 +144,9 @@ function QuizEditor({ id, onClose }) {
         <fieldset className="card qcard" key={q._k}>
           <legend>Question {i + 1}</legend>
           <div className="qtools">
-            <button type="button" className="btn ghost sm" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`Move question ${i + 1} up`}>▲</button>
-            <button type="button" className="btn ghost sm" onClick={() => move(i, 1)} disabled={i === qs.length - 1} aria-label={`Move question ${i + 1} down`}>▼</button>
-            <button type="button" className="btn danger sm" onClick={() => setQs(qs.filter((_, k) => k !== i))} disabled={qs.length === 1} aria-label={`Delete question ${i + 1}`}>✕</button>
+            <button type="button" className="btn ghost sm" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`Move question ${i + 1} up`}><ArrowUp aria-hidden="true" /></button>
+            <button type="button" className="btn ghost sm" onClick={() => move(i, 1)} disabled={i === qs.length - 1} aria-label={`Move question ${i + 1} down`}><ArrowDown aria-hidden="true" /></button>
+            <button type="button" className="btn danger sm" onClick={() => setQs(qs.filter((_, k) => k !== i))} disabled={qs.length === 1} aria-label={`Delete question ${i + 1}`}><X aria-hidden="true" /></button>
           </div>
           <label className="f">Question
             <textarea rows={2} maxLength={500} value={q.question_text} onChange={(e) => upQ(i, { question_text: e.target.value })} style={{ width: '100%' }} /></label>
@@ -160,14 +161,14 @@ function QuizEditor({ id, onClose }) {
               <input type="text" maxLength={300} value={o.option_text} placeholder={`Answer ${j + 1}`} aria-label={`Answer ${j + 1} text`}
                 onChange={(e) => upO(i, j, { option_text: e.target.value })} />
               <button type="button" className="btn ghost sm" disabled={q.options.length <= 2} aria-label={`Remove answer ${j + 1}`}
-                onClick={() => upQ(i, { options: q.options.filter((_, k) => k !== j) })}>✕</button>
+                onClick={() => upQ(i, { options: q.options.filter((_, k) => k !== j) })}><X aria-hidden="true" /></button>
             </div>))}
-          <button type="button" className="btn ghost sm" disabled={q.options.length >= 8} onClick={() => upQ(i, { options: [...q.options, opt()] })}>+ Add answer</button>
+          <button type="button" className="btn ghost sm" disabled={q.options.length >= 8} onClick={() => upQ(i, { options: [...q.options, opt()] })}><Plus aria-hidden="true" />Add answer</button>
         </fieldset>))}
 
       <p className="row">
-        <button type="button" className="btn ghost" disabled={qs.length >= 50} onClick={() => setQs([...qs, question()])}>➕ Add question</button>
-        <button type="button" className="btn ghost" onClick={() => setShowPaste(!showPaste)}>📋 Quick paste</button>
+        <button type="button" className="btn ghost" disabled={qs.length >= 50} onClick={() => setQs([...qs, question()])}><Plus aria-hidden="true" />Add question</button>
+        <button type="button" className="btn ghost" onClick={() => setShowPaste(!showPaste)}><ClipboardPaste aria-hidden="true" />Quick paste</button>
       </p>
       {showPaste && (
         <div className="card">

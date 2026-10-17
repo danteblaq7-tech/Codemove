@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Lightbulb } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { api } from '../api';
 import Editor from '../components/Editor';
@@ -24,16 +25,16 @@ export default function Lesson() {
   }
   return (
     <div className="lesson">
-      <Link to={`/courses/${l.course_slug}`}>← Back to course</Link>
+      <Link className="icon-link" to={`/courses/${l.course_slug}`}><ArrowLeft aria-hidden="true" />Back to course</Link>
       <h1>{l.title}</h1>
       <div className="panel" dangerouslySetInnerHTML={{ __html: clean(l.content) }} />
-      {l.tip_text && <div className="tip">💡 <b>Remember</b><br />{l.tip_text}</div>}
+      {l.tip_text && <div className="tip"><Lightbulb className="tip-icon" aria-hidden="true" /> <b>Remember</b><br />{l.tip_text}</div>}
       {/* CHANGED: Codesters-style workspace. `starter` = lesson's example code, `saved` = this learner's own saved work. */}
       {/* CHANGED: the code workspace only appears on code-lab lessons (those with starter code, or saved work).
           Concept and hands-on robotics lessons have no code to write, so they show just the lesson text. */}
       {(l.code_example || l.saved_code != null) && <Editor key={id} lessonId={id} starter={l.code_example || ''} saved={l.saved_code} />}
       {err && <p className="note error" role="alert">{err}</p>}
-      <button className="btn" onClick={finish}>Continue →</button>
+      <button className="btn" onClick={finish}>Continue <ArrowRight aria-hidden="true" /></button>
     </div>
   );
 }

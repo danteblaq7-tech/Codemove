@@ -6,6 +6,7 @@
 //   <BulkImport />  teacher/admin: paste or upload a student list and enrol it into cohorts
 // =====================================================================
 import { useEffect, useMemo, useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { api, useApi } from '../api';
 import './Authoring.css';
 
@@ -104,7 +105,7 @@ export function NewLesson({ onDone }) {
         <label className="f">Module (section)
           <select required disabled={!f.course_id} value={f.module_id} onChange={set('module_id')}>
             {mods.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}
-            <option value="__new">➕ New module…</option>
+            <option value="__new">New module…</option>
           </select></label>
       </div>
       {f.module_id === '__new' && <label className="f">New module name<input required maxLength={120} value={f.new_module} onChange={set('new_module')} /></label>}
@@ -223,7 +224,7 @@ export function BulkImport({ classes, isAdmin = false, defaultClassId = '', onDo
           {s.skipped > 0 && <span className="tag warn">{s.skipped} skipped</span>}{s.errors > 0 && <span className="tag off">{s.errors} errors</span>}
         </div>
         {made.length > 0 && (
-          <p className="note">⚠ Temporary passwords are shown <b>only now</b>. Download them and share each one privately – they can't be viewed again
+          <p className="note"><AlertTriangle className="inline-icon" aria-hidden="true" /> Temporary passwords are shown <b>only now</b>. Download them and share each one privately – they can't be viewed again
             (an admin can reset a password later under Users).{' '}
             <button className="btn sm" onClick={() => downloadCsv('new-student-logins.csv', [['full_name', 'email', 'cohort', 'temporary_password'], ...made.map((r) => [r.full_name, r.email, r.cohort, r.password])])}>Download logins (CSV)</button></p>
         )}

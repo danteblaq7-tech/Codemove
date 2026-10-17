@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useOutletContext } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { api, useApi } from '../../api';
 import Tabs from '../../components/Tabs';
 import Account from '../../components/Account';
@@ -94,7 +95,7 @@ function Lessons() {
   return (
     <>
     {/* NEW: add a lesson to any course/module */}
-    <p><button className="btn ghost" onClick={() => setAdding(!adding)}>{adding ? 'Close' : '➕ New lesson'}</button></p>
+    <p><button className="btn ghost" onClick={() => setAdding(!adding)}>{adding ? 'Close' : <><Plus aria-hidden="true" />New lesson</>}</button></p>
     {adding && <NewLesson onDone={load} />}
     <div className="split">
       <div className="card">{list.map((l, k) => (
