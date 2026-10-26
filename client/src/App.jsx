@@ -22,7 +22,13 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
   if (session === undefined) return <p className="center">Loading…</p>;
-  if (!session) return <Login />;
+  // NEW: visitors who are not logged in land on the welcome page; its buttons lead to /login.
+  if (!session) {
+    const { pathname, search, hash } = window.location;
+    const returningFromGoogle = /access_token|[?&]code=|error_description/.test(search + hash);   // don't interrupt the Google sign-in return
+    if (pathname === '/' && !returningFromGoogle) { window.location.replace('/welcome.html'); return <p className="center">Loading…</p>; }
+    return <Login />;
+  }
   return (
     <BrowserRouter>
       <Routes>
