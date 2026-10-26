@@ -37,3 +37,5 @@ auth-success { margin: 0; padding: 10px 12px; border-radius: 8px; background: #E
   .auth-page { grid-template-columns: 1fr; }
   .auth-visual { display: none; }
 }
+.auth-google { background: #fff; color: #222; border: 1px solid #cfd6d3; }
+.auth-google:hover { background: #f1f4f3; }

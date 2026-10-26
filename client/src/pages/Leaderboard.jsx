@@ -8,9 +8,8 @@
 import { Fragment, useEffect, useState } from 'react';
 import { api, useApi } from '../api';
 import Tabs from '../components/Tabs';
+import { Medal, MoreHorizontal } from 'lucide-react';
 import '../components/Assessment.css';
-
-const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 export default function Leaderboard() {
   const [scope, setScope] = useState('cohort'), [classId, setClassId] = useState('');
@@ -69,9 +68,11 @@ export default function Leaderboard() {
             <tbody>
               {d.board.map((r, i) => (
                 <Fragment key={`${r.rank}-${i}`}>
-                  {r.after_gap && <tr className="gap"><td colSpan={6} aria-hidden="true">⋯</td></tr>}
+                  {r.after_gap && <tr className="gap"><td colSpan={6} aria-hidden="true"><MoreHorizontal /></td></tr>}
                   <tr className={r.is_me ? 'me' : ''} aria-current={r.is_me ? 'true' : undefined}>
-                    <td className="rk">{MEDAL[r.rank] ? <span aria-label={`Rank ${r.rank}`}>{MEDAL[r.rank]}</span> : r.rank}</td>
+                    <td className="rk">{r.rank <= 3
+                      ? <span className={`rank-medal rank-${r.rank}`} aria-label={`Rank ${r.rank}`}><Medal aria-hidden="true" /></span>
+                      : r.rank}</td>
                     <td>{r.name}{r.is_me && <span className="tag"> you</span>}</td>
                     <td>{r.lessons_completed}</td><td>{r.quiz_avg}%</td><td><b>{r.score}%</b></td>
                     <td><span className={`gr grade-${r.grade}`}>{r.grade}</span></td>

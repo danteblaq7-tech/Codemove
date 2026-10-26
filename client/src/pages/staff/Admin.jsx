@@ -13,7 +13,7 @@ export default function Admin() {
   const { me } = useOutletContext();
   const [tab, setTab] = useState('users');
   if (!me) return <p>Loading…</p>;
-  if (me.role !== 'admin') return <Navigate to="/" />;
+  if (me.role !== 'admin') return <Navigate to="/home" />;
   return (
     <>
       <h1>Admin console</h1>
@@ -21,7 +21,7 @@ export default function Admin() {
       {/* CHANGED: new "Rankings" and "Quizzes" tabs */}
       <Tabs tabs={[['users', 'Users'], ['classes', 'Classes'], ['rankings', 'Rankings'], ['courses', 'Courses'], ['lessons', 'Add lessons'], ['quizzes', 'Quizzes'], ['account', 'My account']]} value={tab} onChange={setTab} />
       {tab === 'users' && <Users />}{tab === 'classes' && <AdminClasses />}{tab === 'courses' && <AdminCourses />}
-      {tab === 'lessons' && <><NewLesson /><p className="muted">To change an existing lesson, use the Teacher portal → Edit lessons.</p></>}
+      {tab === 'lessons' && <><NewLesson /><p className="muted">To change an existing lesson, use Edit lessons in the Teacher portal.</p></>}
       {tab === 'rankings' && <Rankings isAdmin />}{tab === 'quizzes' && <QuizManager isAdmin />}
       {tab === 'account' && <Account />}
     </>
@@ -91,91 +91,22 @@ function AdminClasses() {
     </>
   );
 }
-// CHANGED: courses can now be deleted, and their lessons managed (delete) from here. Admin only.
+
 function AdminCourses() {
   const [c, load, err] = useApi('/admin/courses');
-  const [open, setOpen] = useState(null);   // the course whose lessons are being managed
-  const [del, setDel] = useState(null);     // { course, impact, typed } while a course deletion is being confirmed
-  const [msg, setMsg] = useState(null);
   if (!c) return <p>{err || 'Loading…'}</p>;
   const toggle = (x) => api(`/admin/courses/${x.id}`, { method: 'PATCH', body: { is_published: !x.is_published } }).then(load);
-
-  async function askDelete(x) {            // step 1: fetch "what will be lost" and show the confirmation box
-    setMsg(null);
-    try { setDel({ course: x, impact: await api(`/admin/courses/${x.id}/impact`), typed: '' }); }
-    catch (e) { setMsg({ ok: false, text: e.message }); }
-  }
-  async function doDelete() {              // step 2: the server also checks that the typed title matches exactly
-    try {
-      await api(`/admin/courses/${del.course.id}`, { method: 'DELETE', body: { confirm_title: del.typed } });
-      setMsg({ ok: true, text: `"${del.course.title}" was permanently deleted.` });
-      setDel(null); setOpen(null); load();
-    } catch (e) { setMsg({ ok: false, text: e.message }); }
-  }
-
   return (
     <>
-      {msg && <p className={msg.ok ? 'note' : 'note error'} role={msg.ok ? 'status' : 'alert'}>{msg.text}</p>}
-
-      {del && (
-        <div className="card" role="alertdialog" aria-label="Confirm course deletion" style={{ borderColor: '#D9534F', borderWidth: 2 }}>
-          <h3 style={{ color: '#A83C39' }}>Permanently delete "{del.course.title}"?</h3>
-          <p>This cannot be undone. It will erase <b>{del.impact.modules} module(s)</b>, <b>{del.impact.lessons} lesson(s)</b> and <b>{del.impact.quizzes} quiz(zes)</b>,
-            plus the progress of <b>{del.impact.learners} learner(s)</b> and <b>{del.impact.attempts} quiz attempt(s)</b>. Leaderboard totals that include those attempts will change.</p>
-          <p className="muted">Not sure? Press Cancel and use <b>Hide</b> instead. It keeps everything and you can bring the course back.</p>
-          <label className="f">Type the course title to confirm:
-            <input value={del.typed} onChange={(e) => setDel({ ...del, typed: e.target.value })} placeholder={del.course.title} autoComplete="off" />
-          </label>
-          <p className="row">
-            <button className="btn" style={{ background: '#D9534F', borderColor: '#D9534F', color: '#fff' }} disabled={del.typed !== del.course.title} onClick={doDelete}>Delete permanently</button>
-            <button className="btn ghost" onClick={() => setDel(null)}>Cancel</button>
-          </p>
-        </div>
-      )}
-
       <div className="card scroll"><table>
         <thead><tr><th>Course</th><th>Lessons</th><th>Status</th><th></th></tr></thead>
         <tbody>{c.map((x) => (
           <tr key={x.id}><td>{x.title}</td><td>{x.lessons}</td>
             <td><span className={`tag ${x.is_published ? '' : 'off'}`}>{x.is_published ? 'Published' : 'Hidden'}</span></td>
-            <td>
-              <button className="btn ghost sm" onClick={() => toggle(x)}>{x.is_published ? 'Hide' : 'Publish'}</button>{' '}
-              <button className="btn ghost sm" onClick={() => setOpen(open?.id === x.id ? null : x)}>{open?.id === x.id ? 'Close lessons' : 'Manage lessons'}</button>{' '}
-              <button className="btn ghost sm" style={{ color: '#A83C39' }} onClick={() => askDelete(x)}>Delete…</button>
-            </td></tr>))}</tbody>
+            <td><button className="btn ghost sm" onClick={() => toggle(x)}>{x.is_published ? 'Hide' : 'Publish'}</button></td></tr>))}</tbody>
       </table></div>
-
-      {open && <CourseLessons key={open.id} course={open} onChanged={load} setMsg={setMsg} />}
+      {/* NEW: create a course (hidden draft by default). Add its lessons in the "Add lessons" tab, then Publish here. */}
+      <NewCourse onDone={load} />
     </>
-  );
-}
-
-// NEW: lists a course's modules and lessons with a Delete button per lesson.
-function CourseLessons({ course, onChanged, setMsg }) {
-  const [mods, reload, err] = useApi(`/admin/courses/${course.id}/lessons`);
-  if (!mods) return <p>{err || 'Loading…'}</p>;
-  async function remove(l) {
-    if (!window.confirm(`Delete the lesson "${l.title}"?\n\nLearners' progress and saved code for this lesson will be lost. This cannot be undone.`)) return;
-    try {
-      await api(`/admin/lessons/${l.id}`, { method: 'DELETE' });
-      setMsg({ ok: true, text: `Lesson "${l.title}" was deleted.` });
-      reload(); onChanged();
-    } catch (e) { setMsg({ ok: false, text: e.message }); }
-  }
-  return (
-    <div className="card scroll">
-      <h3>Lessons in {course.title}</h3>
-      {mods.length === 0 && <p className="muted">This course has no modules yet.</p>}
-      {mods.map((m) => (
-        <div key={m.id}>
-          <h4>{m.title}</h4>
-          {m.lessons.length === 0 ? <p className="muted">No lessons in this module.</p> : (
-            <table><tbody>{m.lessons.map((l) => (
-              <tr key={l.id}><td>{l.order_index}</td><td>{l.title}</td>
-                <td><button className="btn ghost sm" style={{ color: '#A83C39' }} onClick={() => remove(l)}>Delete</button></td></tr>))}</tbody></table>
-          )}
-        </div>
-      ))}
-    </div>
   );
 }

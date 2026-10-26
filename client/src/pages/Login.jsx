@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import './AuthLayout.css';
 import favicon from '../assets/favicon.jpeg';
@@ -31,6 +32,14 @@ export default function Login() {
       setMsg('Account created. Check your email if confirmation is on.');
       setMsgOk(true);
     }
+  }
+
+  // NEW: Google sign-in (needs the Google provider switched on in Supabase – see UPGRADE_NOTES.md)
+  async function google() {
+    setMsg('');
+    sessionStorage.setItem('cm_oauth', '1');   // lets the landing page send you on to the dashboard if Google brings you back to "/"
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/home` } });
+    if (error) setMsg(error.message);
   }
 
   const signingIn = mode === 'in';
@@ -92,6 +101,11 @@ export default function Login() {
             {busy ? 'PLEASE WAIT...' : signingIn ? 'LOGIN' : 'SIGN UP'}
           </button>
 
+          <button type="button" className="auth-btn auth-google" onClick={google}>
+            CONTINUE WITH GOOGLE
+          </button>
+
+          <p className="auth-footer"><a className="icon-link" href="/"><ArrowLeft aria-hidden="true" />About CodeMove Kenya</a></p>
           <p className="auth-footer">
             {signingIn ? "Don't have an account? " : 'Already have an account? '}
             <a

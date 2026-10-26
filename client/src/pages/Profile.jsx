@@ -1,4 +1,5 @@
 import { useOutletContext } from 'react-router-dom';
+import { Flame, LogOut, Moon, Sun } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { api } from '../api';
 
@@ -18,9 +19,12 @@ export default function Profile() {
         <div className="card"><b>{me.stats.avgScore}%</b><span className="muted">Average quiz</span></div>
         <div className="card"><b>{me.stats.badges}</b><span className="muted">Badges</span></div>
       </div>
-      <p className="streak">🔥 Learning streak: {me.streak_days} days</p>
-      <button className="btn ghost" onClick={toggle}>Switch to {me.theme_preference === 'dark' ? 'light' : 'dark'} mode</button>{' '}
-      <button className="btn danger" onClick={() => supabase.auth.signOut()}>Log out</button>
+      <p className="streak"><Flame aria-hidden="true" /> Learning streak: {me.streak_days} days</p>
+      <button className="btn ghost" onClick={toggle}>
+        {me.theme_preference === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+        Switch to {me.theme_preference === 'dark' ? 'light' : 'dark'} mode
+      </button>{' '}
+      <button className="btn danger" onClick={() => supabase.auth.signOut()}><LogOut aria-hidden="true" />Log out</button>
     </>
   );
 }

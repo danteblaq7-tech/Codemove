@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { Hand } from 'lucide-react';
 import { api } from '../api';
 import CourseCard from '../components/CourseCard';
 
@@ -12,7 +13,7 @@ export default function Dashboard() {
   const avg = courses.length ? Math.round(courses.reduce((a, c) => a + c.progress, 0) / courses.length) : 0;
   return (
     <>
-      <h1>{greet}, {me?.full_name?.split(' ')[0] || 'learner'} 👋</h1>
+      <h1>{greet}, {me?.full_name?.split(' ')[0] || 'learner'} <Hand className="inline-icon" aria-hidden="true" /></h1>
       <p className="muted">Ready to continue learning?</p>
       <div className="card"><h3>Your learning progress</h3><div className="bar big"><i style={{ width: `${avg}%` }} /></div><p className="muted">{avg}% overall</p></div>
       <h2>Continue learning</h2>

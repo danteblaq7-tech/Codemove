@@ -1,0 +1,44 @@
+/* Landing page – every rule is scoped to .lp / lp-* so it never clashes with the app's own styles */
+.lp{--navy:#16375c;--green:#0d8059;--bg:#f6f8f7;--card:#fff;--ink:#1c2a38;--muted:#5a6b7b;--line:#dbe3e0;--soft:#e7f3ee;
+  min-height:100vh;background:var(--bg);color:var(--ink);font-family:Lexend,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65;scroll-behavior:smooth}
+@media (prefers-color-scheme:dark){.lp{--bg:#0f1a24;--card:#17242f;--ink:#e8eef2;--muted:#a3b1bd;--line:#2a3a47;--soft:#14322a;--navy:#0c2540}}
+.lp *{box-sizing:border-box}
+.lp a{color:var(--green)}
+.lp a:focus-visible,.lp summary:focus-visible{outline:3px solid var(--green);outline-offset:3px;border-radius:4px}
+.lp h1,.lp h2,.lp h3{font-family:inherit;letter-spacing:normal;text-transform:none}
+.lp p,.lp ul{max-width:none}
+.lp-wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.lp-header{background:var(--navy);color:#fff;padding:0;margin:0}
+.lp-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;padding-bottom:14px}
+.lp .lp-brand{font-weight:700;font-size:1.15rem;color:#fff;text-decoration:none}
+.lp-nav{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.lp .lp-nav a{color:#fff;text-decoration:none;font-size:.95rem}
+.lp .lp-btn{display:inline-block;background:var(--green);color:#fff;padding:12px 22px;border-radius:10px;font-weight:600;text-decoration:none;border:2px solid var(--green);font-size:1rem}
+.lp .lp-btn.lp-alt{background:transparent;border-color:#fff;color:#fff}
+.lp-hero{background:linear-gradient(160deg,var(--navy),#1d4f7a);color:#fff;padding:64px 0 72px}
+.lp .lp-hero h1{font-size:clamp(1.9rem,5vw,3rem);line-height:1.2;margin:0 0 16px;max-width:16em;color:#fff}
+.lp .lp-hero p{max-width:40em;font-size:1.1rem;margin:0 0 28px;opacity:.95;color:#fff}
+.lp-cta{display:flex;gap:12px;flex-wrap:wrap}
+.lp .lp-sec{padding:56px 0;margin:0;background:transparent}
+.lp .lp-sec.lp-band{background:var(--soft)}
+.lp .lp-sec h2{font-size:clamp(1.5rem,3.5vw,2rem);margin:0 0 10px;color:var(--navy)}
+@media (prefers-color-scheme:dark){.lp .lp-sec h2{color:#cfe3f5}}
+.lp .lp-lead{max-width:46em;color:var(--muted);margin:0 0 28px}
+.lp-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.lp-two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.lp-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:none}
+.lp .lp-card h3{margin:0 0 6px;font-size:1.05rem;color:var(--ink)}
+.lp .lp-card p{margin:0;color:var(--muted);font-size:.96rem}
+.lp-card ul{margin:10px 0 0;padding-left:1.2em;color:var(--ink)}.lp-card li{margin:6px 0}
+.lp-num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--green);color:#fff;font-weight:700;margin-bottom:10px}
+.lp-tag{font-size:.78rem;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.06em}
+.lp-pills{display:flex;gap:10px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+.lp-pills li{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.93rem}
+.lp details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+.lp summary{cursor:pointer;font-weight:600}
+.lp details p{margin:10px 0 0;color:var(--muted)}
+.lp .lp-sec.lp-final{background:var(--navy);color:#fff;text-align:center}
+.lp .lp-final h2{color:#fff}
+.lp .lp-final p{max-width:36em;margin:0 auto 24px;opacity:.95;color:#fff}
+.lp .lp-final .lp-contact{margin:22px 0 0}.lp .lp-final .lp-contact a{color:#fff}
+.lp-footer{padding:22px 0;text-align:center;color:var(--muted);font-size:.88rem}

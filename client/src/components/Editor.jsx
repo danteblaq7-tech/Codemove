@@ -2,48 +2,49 @@
 // REPLACES client/src/components/Editor.jsx
 // A Codesters-style workspace:  TOOLKIT | code editor (line numbers) | action buttons | stage + console
 //   • Toolkit buttons insert ready-made HTML/CSS/JS snippets at the cursor
-//   • ▶ Run  (also Ctrl/Cmd+Enter)   💾 Save (Ctrl/Cmd+S) + autosave   ⟲ Reset to starter   ■ Stop
+//   • Run (also Ctrl/Cmd+Enter)   Save (Ctrl/Cmd+S) + autosave   Reset to starter   Stop
 //   • The stage is a sandboxed iframe. Scripts may run (allow-scripts) but the page has NO access to
 //     CodeMove (no allow-same-origin), so learner code can't read tokens or call our API.
 //   • console.log / errors from the learner's page appear in the Console panel and are stored
 //     with each run (code_runs.output / has_error), so teachers can see where learners get stuck.
 // =====================================================================
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Blocks, Image, List, Palette, Play, RotateCcw, Save, Square, Type, Zap } from 'lucide-react';
 import { api } from '../api';
 import './Editor.css';
 
 /* ---------- Toolkit: [label, hover tip, snippet]. "$|" marks where the cursor lands. ---------- */
 const TOOLKIT = [
-  { id: 'page', icon: '🧱', name: 'Page', items: [
+  { id: 'page', icon: Blocks, name: 'Page', items: [
     ['Heading 1', 'The main title of the page.', '<h1>$|</h1>\n'],
     ['Heading 2', 'A smaller section heading.', '<h2>$|</h2>\n'],
     ['Paragraph', 'A block of text.', '<p>$|</p>\n'],
     ['Group (div)', 'Wraps elements so you can style them together.', '<div>\n  $|\n</div>\n'],
   ] },
-  { id: 'text', icon: '🔤', name: 'Text', items: [
+  { id: 'text', icon: Type, name: 'Text', items: [
     ['Bold text', 'Makes text stand out.', '<strong>$|</strong>'],
     ['Italic text', 'Slants the text.', '<em>$|</em>'],
     ['Line break', 'Starts a new line.', '<br>\n'],
     ['Link', 'Sends the visitor to another page.', '<a href="$|">Link text</a>'],
   ] },
-  { id: 'lists', icon: '📋', name: 'Lists', items: [
+  { id: 'lists', icon: List, name: 'Lists', items: [
     ['Bullet list', 'An unordered list.', '<ul>\n  <li>$|</li>\n  <li></li>\n</ul>\n'],
     ['Numbered list', 'An ordered list.', '<ol>\n  <li>$|</li>\n  <li></li>\n</ol>\n'],
     ['Table', 'Rows and columns of data.', '<table border="1">\n  <tr>\n    <th>$|</th>\n    <th></th>\n  </tr>\n  <tr>\n    <td></td>\n    <td></td>\n  </tr>\n</table>\n'],
   ] },
-  { id: 'media', icon: '🖼️', name: 'Media', items: [
+  { id: 'media', icon: Image, name: 'Media', items: [
     ['Image', 'Shows a picture. Paste the image address in src.', '<img src="$|" alt="Describe the image" width="200">\n'],
     ['Button', 'A clickable button.', '<button>$|Click me</button>\n'],
     ['Text box', 'Lets the visitor type something.', '<input type="text" placeholder="$|">\n'],
   ] },
-  { id: 'style', icon: '🎨', name: 'Style', items: [
+  { id: 'style', icon: Palette, name: 'Style', items: [
     ['Style block', 'Where your CSS lives.', '<style>\n  $|\n</style>\n'],
     ['Text colour', 'Inside a CSS rule.', 'color: $|tomato;\n'],
     ['Background', 'Inside a CSS rule.', 'background-color: $|lightyellow;\n'],
     ['Font size', 'Inside a CSS rule.', 'font-size: $|24px;\n'],
     ['Centre text', 'Inside a CSS rule.', 'text-align: center;\n'],
   ] },
-  { id: 'script', icon: '⚡', name: 'Script', items: [
+  { id: 'script', icon: Zap, name: 'Script', items: [
     ['Script block', 'Where your JavaScript lives.', '<script>\n  $|\n</script>\n'],
     ['Print message', 'Shows a message in the Console below the stage.', 'console.log("$|Hello!");\n'],
     ['On click', 'Runs code when the first button is clicked.', 'document.querySelector("button").addEventListener("click", () => {\n  $|\n});\n'],
@@ -55,7 +56,7 @@ const BRIDGE = '<script>(function(){var s=function(t,a){try{parent.postMessage({
 const buildDoc = (code) => BRIDGE + code;
 const BLANK = '<!doctype html><body style="margin:0;background:#fff"></body>';
 
-const STATUS = { idle: '', dirty: 'Unsaved changes…', saving: 'Saving…', saved: 'Saved ✓', error: 'Could not save – check your connection' };
+const STATUS = { idle: '', dirty: 'Unsaved changes…', saving: 'Saving…', saved: 'Saved', error: 'Could not save – check your connection' };
 
 export default function Editor({ lessonId, starter = '', saved = null }) {
   const start = saved ?? starter;                       // saved work wins over the lesson's starter code
@@ -157,7 +158,7 @@ export default function Editor({ lessonId, starter = '', saved = null }) {
         <div className="ide-cats" role="tablist" aria-label="Toolkit categories">
           {TOOLKIT.map((c) => (
             <button key={c.id} role="tab" aria-selected={tab === c.id} className="ide-cat" onClick={() => setTab(c.id)}>
-              <span aria-hidden="true">{c.icon}</span><small>{c.name}</small>
+              <c.icon className="ide-cat-icon" aria-hidden="true" /><small>{c.name}</small>
             </button>
           ))}
         </div>
@@ -184,10 +185,10 @@ export default function Editor({ lessonId, starter = '', saved = null }) {
 
       {/* ---- Action buttons ---- */}
       <div className="ide-actions">
-        <button className="ide-act run" onClick={run} title="Run (Ctrl+Enter)" aria-label="Run code">▶</button>
-        <button className="ide-act save" onClick={save} title="Save (Ctrl+S)" aria-label="Save code">💾</button>
-        <button className="ide-act reset" onClick={reset} title="Reset to starter code" aria-label="Reset to starter code">⟲</button>
-        <button className="ide-act stop" onClick={stop} title="Stop and clear the stage" aria-label="Stop and clear the stage">■</button>
+        <button className="ide-act run" onClick={run} title="Run (Ctrl+Enter)" aria-label="Run code"><Play aria-hidden="true" /></button>
+        <button className="ide-act save" onClick={save} title="Save (Ctrl+S)" aria-label="Save code"><Save aria-hidden="true" /></button>
+        <button className="ide-act reset" onClick={reset} title="Reset to starter code" aria-label="Reset to starter code"><RotateCcw aria-hidden="true" /></button>
+        <button className="ide-act stop" onClick={stop} title="Stop and clear the stage" aria-label="Stop and clear the stage"><Square aria-hidden="true" /></button>
       </div>
 
       {/* ---- Stage + console ---- */}

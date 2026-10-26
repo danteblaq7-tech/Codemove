@@ -14,14 +14,19 @@ h1,h2,h3{color:var(--navy);
 .muted{color:var(--muted);font-size:.92rem;margin:.2em 0}.center{text-align:center;margin-top:20vh}
 .shell{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
 .side{background:var(--navy);padding:20px 12px;display:flex;flex-direction:column;gap:4px}
-.side a{color:#dbe6ee;text-decoration:none;padding:10px 12px;border-radius:8px}.side a.active{background:#168A5B;color:#fff;font-weight:600}
+.side a{color:#dbe6ee;text-decoration:none;padding:10px 12px;border-radius:8px;display:flex;align-items:center;gap:10px}.side a.active{background:#168A5B;color:#fff;font-weight:600}
+.nav-icon{width:18px;height:18px;flex:none;stroke-width:1.8}
 .brand{color:#fff;font-weight:800;font-size:1.2rem;margin:0 0 16px 8px}.brand 
 span{color:var(--green)}.brand.dark{color:var(--navy)}
 .main{padding:24px 32px;max-width:none;width:100%;min-width:0}   /* CHANGED: fills the space beside the sidebar */
 @media(max-width:720px){.shell{grid-template-columns:1fr}.side{flex-direction:row;overflow-x:auto;padding:8px}.brand{display:none}.main{padding:16px}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.grid .card{margin:0}
-.icon{width:42px;height:42px;background:var(--mint);border-radius:10px;display:grid;place-items:center;font-size:1.3rem}
+.icon{width:42px;height:42px;background:var(--mint);border-radius:10px;display:grid;place-items:center;font-size:1.3rem;color:var(--primary)}
+.icon svg{width:22px;height:22px;stroke-width:1.8}
+.inline-icon{width:1em;height:1em;vertical-align:-.15em;flex:none;stroke-width:1.9}
+.icon-link{display:inline-flex;align-items:center;gap:6px}
+.icon-link svg{width:1em;height:1em;flex:none}
 .bar{height:10px;background:var(--track);border-radius:6px;overflow:hidden}.bar.big{height:16px}.bar i{display:block;height:100%;background:var(--green);transition:width .4s}
 .btn{display:inline-block;font:inherit;font-weight:600;background:var(--primary);color:var(--on-primary);border:2px solid var(--primary);padding:8px 18px;border-radius:8px;cursor:pointer;text-decoration:none}
 .btn:hover{background:var(--primary-h);border-color:var(--primary-h)}.btn:disabled{opacity:.5;cursor:default}
@@ -40,7 +45,7 @@ input{font:inherit;padding:9px 10px;border:1px solid var(--border);border-radius
 .ed-body textarea{background:#17221D;color:#E8F6EF;caret-color:#4DBD7A;border:0;padding:12px;font:14px/1.6 ui-monospace,Consolas,monospace;resize:none;min-height:240px}
 .ed-body iframe{width:100%;height:100%;min-height:240px;border:0;background:#fff}
 .list{list-style:none;padding:0}.list li{padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center}
-.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-size:.75rem;flex:none}.dot.completed{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}.dot.in_progress{border-color:var(--green)}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-size:.75rem;flex:none}.dot svg{width:14px;height:14px;stroke-width:2.4}.dot.completed{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}.dot.in_progress{border-color:var(--green)}
 .answer{display:block;width:100%;text-align:left;font:inherit;background:var(--card);color:var(--text);border:2px solid var(--border);border-radius:10px;padding:12px 14px;margin:8px 0;cursor:pointer}
 .answer:hover{background:var(--mint)}.answer.sel{background:var(--mint);border-color:var(--primary)}
 .badge{text-align:center}.trophy{font-size:2rem}.badge.locked{opacity:.55;filter:grayscale(1)}.badge.in_progress{border-color:var(--green)}.badge.completed{background:#FFF8DF;border-color:var(--amber);color:#6E5200}.badge.completed h3{color:#6E5200}.badge.special{background:var(--navy);color:#fff}.badge.special h3{color:#fff}
@@ -78,6 +83,7 @@ h1, h2, h3, .brand .brand { font-family: 'Orbitron', system-ui, sans-serif; }
 .lesson .panel a.media-link { display: inline-block; font-weight: 600; }
 .lesson .panel .media-soon { color: var(--muted); font-style: italic; }
 @media(max-width:720px){ .main{padding:16px} }
+
 /* Phone layout: keep the menu bar slim and pinned to the top */
 @media (max-width: 720px) {
   .shell { grid-template-rows: auto minmax(0, 1fr); }
