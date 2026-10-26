@@ -10,3 +10,33 @@ label.f input[type=file]{padding:6px}
 .notes-help{margin:8px 0;font-size:.88rem}.notes-help summary{cursor:pointer;font-weight:600;color:var(--primary)}
 .notes-help ul{margin:6px 0;padding-left:1.2em}.notes-help li{margin:3px 0}
 textarea.notes{width:100%;font-family:inherit;font-size:.95rem;line-height:1.6;white-space:pre-wrap;min-height:220px}
+
+/* NEW FILE – client/src/components/Authoring.css (imported by Authoring.jsx) */
+.imp textarea{width:100%;min-height:150px;font-family:ui-monospace,Consolas,monospace;font-size:.85rem;white-space:pre}
+.imp-sum{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.imp-sum .tag{font-size:.85rem;padding:4px 10px}
+.imp-scroll{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+.tag.warn{background:#FFF8DF;color:#6E5200}
+.linkbtn{font:inherit;color:var(--primary);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+label.f input[type=file]{padding:6px}
+
+.notes-help{margin:8px 0;font-size:.88rem}.notes-help summary{cursor:pointer;font-weight:600;color:var(--primary)}
+.notes-help ul{margin:6px 0;padding-left:1.2em}.notes-help li{margin:3px 0}
+textarea.notes{width:100%;font-family:inherit;font-size:.95rem;line-height:1.6;white-space:pre-wrap;min-height:220px}
+
+/* hide / release lessons */
+.lrow{display:flex;gap:6px;align-items:center;margin-bottom:4px}.lrow .tab{flex:1;min-width:0;text-align:left}
+.tab.is-hidden{opacity:.6}
+.pace{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 12px;margin-bottom:12px;border-radius:10px;border:1px solid #cfd8dc}
+.pace.off{background:#fff4e5;border-color:#f0c36d}.pace.on{background:#eaf7ee;border-color:#9ad3a9}
+
+/* scheduled release */
+.pace.hidden{background:#fff4e5;border-color:#f0c36d}.pace.visible{background:#eaf7ee;border-color:#9ad3a9}
+.pace.scheduled{background:#e8f1fd;border-color:#8db6ee}.pace.module{background:#f5f6f8;border-color:#d5d9df}
+.pace .sched{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.9rem}
+.pace .sched input{padding:4px 6px}
+
+/* class codes */
+.pace.waiting{background:#fdecec;border-color:#e8a1a1}.pace.coded{background:#f1ecfd;border-color:#b9a4ee}
+.codebox{font:700 1.5rem/1 ui-monospace,Consolas,monospace;letter-spacing:.2em;padding:6px 12px;border-radius:8px;background:#fff;border:2px dashed #7a5ad6;user-select:all}
+.codebar input{text-transform:uppercase;letter-spacing:.15em}

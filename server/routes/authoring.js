@@ -87,6 +87,7 @@ authoring.post('/staff/lessons', teacher, h(async (req, res) => {
   const { data, error } = await sb.from('lessons').insert({
     module_id: m.id, title, content: str(req.body.content, 60000), code_example: str(req.body.code_example, 20000),
     tip_text: str(req.body.tip_text, 500), estimated_minutes: minutes,
+    is_hidden: req.body.is_hidden === true,   // NEW: start hidden if the teacher ticked the box
     order_index: await nextOrder('lessons', 'module_id', m.id),
   }).select('id').single();
   if (error) throw error;

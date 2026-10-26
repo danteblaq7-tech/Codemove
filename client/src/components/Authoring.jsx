@@ -6,7 +6,6 @@
 //   <BulkImport />  teacher/admin: paste or upload a student list and enrol it into cohorts
 // =====================================================================
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
 import { api, useApi } from '../api';
 import './Authoring.css';
 
@@ -67,7 +66,7 @@ export function NotesHelp() {
 /* ------------------------------------------------------------------ */
 export function NewLesson({ onDone }) {
   const [courses, reload, loadErr] = useApi('/staff/courses');
-  const blank = { course_id: '', module_id: '', new_module: '', title: '', estimated_minutes: 10, content: '', code_example: '', tip_text: '' };
+  const blank = { course_id: '', module_id: '', new_module: '', title: '', estimated_minutes: 10, content: '', code_example: '', tip_text: '', is_hidden: false };
   const [f, setF] = useState(blank), [msg, setMsg] = useState(''), [err, setErr] = useState(''), [busy, setBusy] = useState(false);
   if (!courses) return <p>{loadErr || 'Loading…'}</p>;
   if (!courses.length) return <div className="card">There are no courses yet. An admin needs to add a course first.</div>;
@@ -86,7 +85,7 @@ export function NewLesson({ onDone }) {
         module_id = (await api('/staff/modules', { method: 'POST', body: { course_id: f.course_id, title: f.new_module } })).id;
       }
       await api('/staff/lessons', { method: 'POST', body: { module_id, title: f.title, estimated_minutes: f.estimated_minutes,
-        content: f.content, code_example: f.code_example, tip_text: f.tip_text } });
+        content: f.content, code_example: f.code_example, tip_text: f.tip_text, is_hidden: f.is_hidden } });
       setMsg(`Lesson "${f.title}" added to the end of the module.`);
       setF({ ...blank, course_id: f.course_id, module_id });     // keep course/module so you can add the next lesson quickly
       reload(); onDone?.();
@@ -105,7 +104,7 @@ export function NewLesson({ onDone }) {
         <label className="f">Module (section)
           <select required disabled={!f.course_id} value={f.module_id} onChange={set('module_id')}>
             {mods.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}
-            <option value="__new">New module…</option>
+            <option value="__new">➕ New module…</option>
           </select></label>
       </div>
       {f.module_id === '__new' && <label className="f">New module name<input required maxLength={120} value={f.new_module} onChange={set('new_module')} /></label>}
@@ -116,6 +115,7 @@ export function NewLesson({ onDone }) {
       <label className="f">Lesson notes (just type normally – no HTML)
         <textarea className="code notes" rows={14} value={f.content} onChange={set('content')} placeholder={'Explain the idea here. Press Enter twice to start a new paragraph.'} /></label>
       <NotesHelp />
+      <label className="f"><input type="checkbox" checked={f.is_hidden} onChange={(e) => setF({ ...f, is_hidden: e.target.checked })} style={{ width: 'auto' }} /> 🚫 Keep this lesson hidden from learners until I release it</label>
       <label className="f">Starter code (what the learner sees in the editor)
         <textarea className="code" value={f.code_example} onChange={set('code_example')} placeholder={'<h1>Hello World</h1>\n<p>Welcome!</p>'} /></label>
       <label className="f">"Remember" tip (optional)<input maxLength={500} value={f.tip_text} onChange={set('tip_text')} /></label>
@@ -224,7 +224,7 @@ export function BulkImport({ classes, isAdmin = false, defaultClassId = '', onDo
           {s.skipped > 0 && <span className="tag warn">{s.skipped} skipped</span>}{s.errors > 0 && <span className="tag off">{s.errors} errors</span>}
         </div>
         {made.length > 0 && (
-          <p className="note"><AlertTriangle className="inline-icon" aria-hidden="true" /> Temporary passwords are shown <b>only now</b>. Download them and share each one privately – they can't be viewed again
+          <p className="note">⚠ Temporary passwords are shown <b>only now</b>. Download them and share each one privately – they can't be viewed again
             (an admin can reset a password later under Users).{' '}
             <button className="btn sm" onClick={() => downloadCsv('new-student-logins.csv', [['full_name', 'email', 'cohort', 'temporary_password'], ...made.map((r) => [r.full_name, r.email, r.cohort, r.password])])}>Download logins (CSV)</button></p>
         )}

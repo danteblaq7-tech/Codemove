@@ -33,6 +33,13 @@ export default function Login() {
     }
   }
 
+  // NEW: Google sign-in (needs the Google provider switched on in Supabase – see UPGRADE_NOTES.md)
+  async function google() {
+    setMsg('');
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+    if (error) setMsg(error.message);
+  }
+
   const signingIn = mode === 'in';
 
   return (
@@ -90,6 +97,10 @@ export default function Login() {
 
           <button type="submit" className="auth-btn" disabled={busy}>
             {busy ? 'PLEASE WAIT...' : signingIn ? 'LOGIN' : 'SIGN UP'}
+          </button>
+
+          <button type="button" className="auth-btn auth-google" onClick={google}>
+            CONTINUE WITH GOOGLE
           </button>
 
           <p className="auth-footer">
