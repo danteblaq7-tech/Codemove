@@ -6,6 +6,7 @@
 //   <BulkImport />  teacher/admin: paste or upload a student list and enrol it into cohorts
 // =====================================================================
 import { useEffect, useMemo, useState } from 'react';
+import { EyeOff } from 'lucide-react';
 import { api, useApi } from '../api';
 import './Authoring.css';
 
@@ -104,7 +105,7 @@ export function NewLesson({ onDone }) {
         <label className="f">Module (section)
           <select required disabled={!f.course_id} value={f.module_id} onChange={set('module_id')}>
             {mods.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}
-            <option value="__new">➕ New module…</option>
+            <option value="__new">New module…</option>
           </select></label>
       </div>
       {f.module_id === '__new' && <label className="f">New module name<input required maxLength={120} value={f.new_module} onChange={set('new_module')} /></label>}
@@ -115,7 +116,7 @@ export function NewLesson({ onDone }) {
       <label className="f">Lesson notes (just type normally – no HTML)
         <textarea className="code notes" rows={14} value={f.content} onChange={set('content')} placeholder={'Explain the idea here. Press Enter twice to start a new paragraph.'} /></label>
       <NotesHelp />
-      <label className="f"><input type="checkbox" checked={f.is_hidden} onChange={(e) => setF({ ...f, is_hidden: e.target.checked })} style={{ width: 'auto' }} /> 🚫 Keep this lesson hidden from learners until I release it</label>
+      <label className="f"><input type="checkbox" checked={f.is_hidden} onChange={(e) => setF({ ...f, is_hidden: e.target.checked })} style={{ width: 'auto' }} /> <EyeOff className="inline-icon" aria-hidden="true" /> Keep this lesson hidden from learners until I release it</label>
       <label className="f">Starter code (what the learner sees in the editor)
         <textarea className="code" value={f.code_example} onChange={set('code_example')} placeholder={'<h1>Hello World</h1>\n<p>Welcome!</p>'} /></label>
       <label className="f">"Remember" tip (optional)<input maxLength={500} value={f.tip_text} onChange={set('tip_text')} /></label>

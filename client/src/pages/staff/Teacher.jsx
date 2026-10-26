@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useOutletContext } from 'react-router-dom';
+import { Clock3, Eye, EyeOff, KeyRound, LockKeyhole, Plus } from 'lucide-react';
 import { api, useApi } from '../../api';
 import Tabs from '../../components/Tabs';
 import Account from '../../components/Account';
@@ -79,7 +80,7 @@ function Roster({ id }) {
 // NEW: lesson state = hidden (teacher hid it) / scheduled (opens at release_at) / visible
 const stateOf = (l) => (l.is_hidden ? 'hidden' : l.release_at && new Date(l.release_at) > new Date() ? 'scheduled' : l.requires_code ? (l.access_code ? 'coded' : 'waiting') : 'visible');
 const when = (d) => new Date(d).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
-const ICON = { hidden: '🚫 ', scheduled: '⏰ ', waiting: '🔒 ', coded: '🔑 ', visible: '' };
+const STATUS_ICON = { hidden: EyeOff, scheduled: Clock3, waiting: LockKeyhole, coded: KeyRound, visible: Eye };
 
 function Lessons() {
   const [raw, load, err] = useApi('/staff/lessons');
@@ -133,25 +134,30 @@ function Lessons() {
   const rowAction = (l) => { const k = stateOf(l); if (k === 'waiting') return gate('lessons', l.id, 'issue'); if (k === 'coded') return gate('lessons', l.id, 'lock'); return setHidden(l.id, k === 'visible'); };
   const cur = list[i];
   const st = stateOf(cur);
+  const StatusIcon = STATUS_ICON[st];
   const sibs = list.filter((x) => x.module_id === cur?.module_id);
   const count = (k) => sibs.filter((x) => stateOf(x) === k).length;
   return (
     <>
     {/* NEW: add a lesson to any course/module */}
-    <p><button className="btn ghost" onClick={() => setAdding(!adding)}>{adding ? 'Close' : '➕ New lesson'}</button></p>
+    <p><button className="btn ghost" onClick={() => setAdding(!adding)}>{adding ? 'Close' : <><Plus className="inline-icon" aria-hidden="true" /> New lesson</>}</button></p>
     {adding && <NewLesson onDone={load} />}
     <div className="split">
-      <div className="card">{list.map((l, k) => (
-        <div key={l.id} className="lrow">
-          <button className={`tab full ${stateOf(l) !== 'visible' ? 'is-hidden' : ''}`} aria-selected={k === i} onClick={() => { setI(k); setMsg(''); setSched(''); }}
-            title={stateOf(l) === 'scheduled' ? `Opens ${when(l.release_at)}` : undefined}>
-            {ICON[stateOf(l)]}{stateOf(l) === 'coded' ? `[${l.access_code}] ` : ''}{l.modules.courses.title}: {l.title}</button>
-          <button className="btn ghost sm" onClick={() => rowAction(l)}>{rowLabel(l)}</button>
-        </div>))}</div>
+      <div className="card">{list.map((l, k) => {
+        const LessonStatusIcon = STATUS_ICON[stateOf(l)];
+        return (
+          <div key={l.id} className="lrow">
+            <button className={`tab full ${stateOf(l) !== 'visible' ? 'is-hidden' : ''}`} aria-selected={k === i} onClick={() => { setI(k); setMsg(''); setSched(''); }}
+              title={stateOf(l) === 'scheduled' ? `Opens ${when(l.release_at)}` : undefined}>
+              <LessonStatusIcon className="inline-icon" aria-hidden="true" /> {stateOf(l) === 'coded' ? `[${l.access_code}] ` : ''}{l.modules.courses.title}: {l.title}</button>
+            <button className="btn ghost sm" onClick={() => rowAction(l)}>{rowLabel(l)}</button>
+          </div>
+        );
+      })}</div>
       <div className="card">
         {/* NEW: pace controls – hide, release now, or schedule */}
         <div className={`pace ${st}`}>
-          <b>{{ hidden: '🚫 Hidden from learners', scheduled: `⏰ Locked – opens ${when(cur.release_at)}`, waiting: '🔒 Locked – waiting for you to issue a code', coded: '🔑 Open with a class code', visible: '👁 Visible to learners' }[st]}</b>
+          <b><StatusIcon className="inline-icon" aria-hidden="true" /> {{ hidden: 'Hidden from learners', scheduled: `Locked – opens ${when(cur.release_at)}`, waiting: 'Locked – waiting for you to issue a code', coded: 'Open with a class code', visible: 'Visible to learners' }[st]}</b>
           {st !== 'hidden' && <button className="btn sm" onClick={() => setHidden(cur.id, true)}>Hide this lesson</button>}
           {st !== 'visible' && <button className="btn sm" onClick={() => setHidden(cur.id, false)}>{st === 'scheduled' ? 'Open now' : 'Release this lesson'}</button>}
           <span className="sched">
@@ -161,7 +167,7 @@ function Lessons() {
         </div>
         {/* NEW: class codes – lesson stays locked until the teacher issues a code; learners type it once to open it */}
         <div className={`pace ${st === 'coded' ? 'coded' : st === 'waiting' ? 'waiting' : 'module'}`}>
-          <b>🔑 Class code</b>
+          <b><KeyRound className="inline-icon" aria-hidden="true" /> Class code</b>
           {!cur.requires_code && <><span className="muted">No code needed – open to everyone who can see this lesson.</span>
             <button className="btn sm" onClick={() => gate('lessons', cur.id, 'lock')}>Require a code</button></>}
           {cur.requires_code && <>
@@ -179,12 +185,12 @@ function Lessons() {
         <div className="pace module">
           <b>Codes for many lessons</b>
           <span className="muted">Module “{cur.modules.title}”</span>
-          <button className="btn ghost sm" onClick={() => gate('modules', cur.module_id, 'lock')}>🔒 Lock all</button>
-          <button className="btn ghost sm" onClick={() => gate('modules', cur.module_id, 'issue')}>🔑 Issue missing codes</button>
+          <button className="btn ghost sm icon-link" onClick={() => gate('modules', cur.module_id, 'lock')}><LockKeyhole aria-hidden="true" />Lock all</button>
+          <button className="btn ghost sm icon-link" onClick={() => gate('modules', cur.module_id, 'issue')}><KeyRound aria-hidden="true" />Issue missing codes</button>
           <button className="btn ghost sm" onClick={() => gate('modules', cur.module_id, 'open')}>Remove locks</button>
           <span className="muted">Whole course “{cur.modules.courses.title}”</span>
-          <button className="btn ghost sm" onClick={() => gate('courses', cur.modules.course_id, 'lock')}>🔒 Lock all</button>
-          <button className="btn ghost sm" onClick={() => gate('courses', cur.modules.course_id, 'issue')}>🔑 Issue missing codes</button>
+          <button className="btn ghost sm icon-link" onClick={() => gate('courses', cur.modules.course_id, 'lock')}><LockKeyhole aria-hidden="true" />Lock all</button>
+          <button className="btn ghost sm icon-link" onClick={() => gate('courses', cur.modules.course_id, 'issue')}><KeyRound aria-hidden="true" />Issue missing codes</button>
           <button className="btn ghost sm" onClick={() => gate('courses', cur.modules.course_id, 'open')}>Remove locks</button>
         </div>
         <div className="pace module">

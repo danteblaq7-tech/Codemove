@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import './AuthLayout.css';
 import favicon from '../assets/favicon.jpeg';
@@ -104,7 +105,7 @@ export default function Login() {
             CONTINUE WITH GOOGLE
           </button>
 
-          <p className="auth-footer"><a href="/">← About CodeMove Kenya</a></p>
+          <p className="auth-footer"><a className="icon-link" href="/"><ArrowLeft aria-hidden="true" />About CodeMove Kenya</a></p>
           <p className="auth-footer">
             {signingIn ? "Don't have an account? " : 'Already have an account? '}
             <a

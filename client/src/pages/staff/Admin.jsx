@@ -21,7 +21,7 @@ export default function Admin() {
       {/* CHANGED: new "Rankings" and "Quizzes" tabs */}
       <Tabs tabs={[['users', 'Users'], ['classes', 'Classes'], ['rankings', 'Rankings'], ['courses', 'Courses'], ['lessons', 'Add lessons'], ['quizzes', 'Quizzes'], ['account', 'My account']]} value={tab} onChange={setTab} />
       {tab === 'users' && <Users />}{tab === 'classes' && <AdminClasses />}{tab === 'courses' && <AdminCourses />}
-      {tab === 'lessons' && <><NewLesson /><p className="muted">To change an existing lesson, use the Teacher portal → Edit lessons.</p></>}
+      {tab === 'lessons' && <><NewLesson /><p className="muted">To change an existing lesson, use Edit lessons in the Teacher portal.</p></>}
       {tab === 'rankings' && <Rankings isAdmin />}{tab === 'quizzes' && <QuizManager isAdmin />}
       {tab === 'account' && <Account />}
     </>
