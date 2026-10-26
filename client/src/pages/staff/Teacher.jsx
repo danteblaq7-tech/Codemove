@@ -11,7 +11,7 @@ export default function Teacher() {
   const { me } = useOutletContext();
   const [tab, setTab] = useState('classes');
   if (!me) return <p>Loading…</p>;
-  if (!['teacher', 'admin'].includes(me.role)) return <Navigate to="/" />;
+  if (!['teacher', 'admin'].includes(me.role)) return <Navigate to="/home" />;
   return (
     <>
       <h1>Teacher portal</h1>

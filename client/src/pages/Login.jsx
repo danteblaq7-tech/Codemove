@@ -36,7 +36,8 @@ export default function Login() {
   // NEW: Google sign-in (needs the Google provider switched on in Supabase – see UPGRADE_NOTES.md)
   async function google() {
     setMsg('');
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+    sessionStorage.setItem('cm_oauth', '1');   // lets the landing page send you on to the dashboard if Google brings you back to "/"
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/home` } });
     if (error) setMsg(error.message);
   }
 
@@ -103,6 +104,7 @@ export default function Login() {
             CONTINUE WITH GOOGLE
           </button>
 
+          <p className="auth-footer"><a href="/">← About CodeMove Kenya</a></p>
           <p className="auth-footer">
             {signingIn ? "Don't have an account? " : 'Already have an account? '}
             <a
