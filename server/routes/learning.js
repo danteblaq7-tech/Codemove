@@ -26,6 +26,25 @@ async function awardBadges(uid) {
   return won.map((b) => b.name);
 }
 
+// NEW: may this person open this lesson? Teachers/admins always can; learners only when it is open for them.
+async function mayOpenLesson(uid, lessonId) {
+  if (await isStaff(uid)) return true;
+  const { data: l } = await sb.from('lessons').select('id,is_hidden,release_at,requires_code,access_code').eq('id', lessonId).maybeSingle();
+  if (!l) return false;
+  const { data: un } = await sb.from('lesson_unlocks').select('lesson_id').eq('user_id', uid).eq('lesson_id', lessonId);
+  return canEnter(l, new Set((un || []).map((u) => u.lesson_id)));
+}
+// NEW: a quiz stays shut while every lesson in its module is still locked for this learner.
+async function quizLockedFor(uid, moduleId) {
+  if (await isStaff(uid)) return false;
+  const { data: ls } = await sb.from('lessons').select('id,is_hidden,release_at,requires_code,access_code').eq('module_id', moduleId);
+  if (!ls?.length) return false;
+  const { data: un } = await sb.from('lesson_unlocks').select('lesson_id').eq('user_id', uid).in('lesson_id', ls.map((l) => l.id));
+  const unlocked = new Set((un || []).map((u) => u.lesson_id));
+  return !ls.some((l) => canEnter(l, unlocked));
+}
+const LOCKED_QUIZ = 'This quiz opens after your teacher unlocks the lessons.';
+
 // NEW: a few wrong guesses per learner are allowed, then a short cool-down (stops code guessing).
 const wrong = new Map();   // user id -> [timestamps of wrong tries]
 const tooMany = (uid) => (wrong.get(uid) || []).filter((t) => Date.now() - t < 600_000).length >= 8;
@@ -72,6 +91,7 @@ learning.post('/lessons/:id/complete', h(async (req, res) => {
 }));
 
 learning.post('/lessons/:id/runs', h(async (req, res) => {
+  if (!(await mayOpenLesson(req.user.id, req.params.id))) return res.status(403).json({ error: 'This lesson is locked.' });   // NEW
   const { code, output = '', hasError = false } = req.body;
   if (typeof code !== 'string' || code.length > 20000) return res.status(400).json({ error: 'Invalid code' });
   // CHANGED: the editor now sends the console output of the run – cap it so nobody can fill the table.
@@ -82,6 +102,7 @@ learning.post('/lessons/:id/runs', h(async (req, res) => {
 
 // NEW: save the learner's work (Save button + autosave). One row per learner per lesson.
 learning.put('/lessons/:id/code', h(async (req, res) => {
+  if (!(await mayOpenLesson(req.user.id, req.params.id))) return res.status(403).json({ error: 'This lesson is locked.' });   // NEW
   const { code } = req.body;
   if (typeof code !== 'string' || code.length > 20000) return res.status(400).json({ error: 'Invalid code' });
   const { error } = await sb.from('user_code').upsert(
@@ -94,11 +115,12 @@ learning.put('/lessons/:id/code', h(async (req, res) => {
 // Quiz is returned WITHOUT is_correct.
 learning.get('/quizzes/:id', h(async (req, res) => {
   const { data, error } = await sb.from('quizzes')
-    .select('id,title,description,pass_score,modules(courses(is_published)),quiz_questions(id,question_text,question_type,order_index,quiz_options(id,option_text,order_index))')
+    .select('id,module_id,title,description,pass_score,modules(courses(is_published)),quiz_questions(id,question_text,question_type,order_index,quiz_options(id,option_text,order_index))')
     .eq('id', req.params.id).single();   // CHANGED: + modules(courses(is_published)) for the draft check
   if (error) return res.status(404).json({ error: 'Quiz not found' });
   // NEW: draft protection, and never serve a quiz with no questions (the player would crash).
   if (!data.modules?.courses?.is_published && !(await isStaff(req.user.id))) return res.status(404).json({ error: 'Quiz not found' });
+  if (await quizLockedFor(req.user.id, data.module_id)) return res.status(403).json({ error: LOCKED_QUIZ });   // NEW
   if (!data.quiz_questions.length) return res.status(404).json({ error: 'This quiz has no questions yet' });
   delete data.modules;
   data.quiz_questions.sort(byOrder).forEach((q) => q.quiz_options.sort(byOrder));
@@ -108,8 +130,9 @@ learning.get('/quizzes/:id', h(async (req, res) => {
 learning.post('/quizzes/:id/submit', h(async (req, res) => {
   const answers = req.body.answers || {};
   const { data: quiz, error } = await sb.from('quizzes')
-    .select('pass_score, quiz_questions(id, quiz_options(id,is_correct))').eq('id', req.params.id).single();
+    .select('pass_score, module_id, quiz_questions(id, quiz_options(id,is_correct))').eq('id', req.params.id).single();
   if (error) return res.status(404).json({ error: 'Quiz not found' });
+  if (await quizLockedFor(req.user.id, quiz.module_id)) return res.status(403).json({ error: LOCKED_QUIZ });   // NEW
   let right = 0; const rows = [];
   for (const q of quiz.quiz_questions) {
     const valid = q.quiz_options.map((o) => o.id);
